@@ -1,15 +1,28 @@
 #!/bin/sh
 # *******************************************
 # Script to perform RNA seq variant calling
-# so far using a single sample with fastq files
-# named 1.fastq.gz and 2.fastq.gz - this should be updated to paired RNA seq reads + .bam from germline
 # *******************************************
 
-# Update with the fullpath location of your sample fastq
+# Full path to code repo
+apps="/home/projects/HT2_leukngs/apps/github/code"
+
+
+# *******************************************
+# ASSUMPTIONS
+# fastq-files are name _R1 and R2 as the final part of the filename. After this only extension (can be zipped or not)
+# reads are aligned to hg37 decoy genome
+
 set -x
-data_dir="$( cd -P "$( dirname "$0" )" && pwd )"
+#data_dir is  the directory of the input symlinks (symlinks should not be followed,which is configured with -s option)
+data_dir="$( dirname "$(realpath -s $1)" )"
 fastq_1=$1 
 fastq_2=$(sed 's/R1/R2/g' <<< "$fastq_1")
+
+# other settings
+nt=$2 #number of threads to use in computation
+
+echo "# Input files: $fastq_1 and $fastq_2"
+echo "# Input number of threads:" $nt
 
 reference_dir=/home/databases/gatk-legacy-bundles/b37
 
@@ -26,26 +39,27 @@ export SENTIEON_LICENSE=localhost:8990
 
 # RNA specific resources
 module load star/2.7.0c
-genomeDir=/home/projects/dp_00005/data/references/star_genome_hg37
+echo "Loaded star version 2.7.0c" 
+genomeDir=/home/projects/HT2_leukngs/data/references/hg37/star_genome_hg37
 
-# It is important to assign meaningful names in actual cases.
+# It is important to assign meaningful names in actual cases meaning that we will follow the usual naming scheme! 
 # It is particularly important to assign different read group names.
-sample=$(basename $fastq_1 | cut -d '_' -f1)
-platform="ILLUMINA"
+# SENTIEON VERSION 1.0 code
+pipeline_version="PST01"
+samplename=$(basename $fastq_1 | sed 's/.R1.*//')
+sample="$samplename"."$pipeline_version"
 RG=$(zgrep -m 1 '@'  $fastq_1 | cut -d ':' -f3-4)
+platform="ILLUMINA"
 platformUnit=$(zgrep -m 1 '@'  $fastq_1 | cut -d ':' -f3)
-# Other settings
 
-nt=28 #number of threads to use in computation
-
-
-# ******************************************
 # 0. Setup
 # ******************************************
-workdir=$data_dir/result/$sample
+workdir=$data_dir/$sample
 mkdir -p $workdir
 logfile=$workdir/run.log
-exec >$logfile 2>&1
+exec > $logfile 2>&1
+echo "Copying executed script to" $workdir
+cp "$(readlink -f $0)" $workdir
 cd $workdir
 
 # ******************************************
@@ -70,7 +84,8 @@ STAR --genomeDir $genomeDir \
 # 1b. Sorting
 # outSAMtype does not work, so we use samtools for sorting by coordinate
 # ******************************************
-module load samtools/1.9 
+module load samtools/1.9
+echo "Loaded samtools 1.9 for sorting, indexing and adding read group" 
 samtools addreplacerg sorted.Aligned.out.bam -r ID:$RG -r PU:$platformUnit -r SM:$sample -r PL:$platform -m overwrite_all -o rg.bam
 samtools sort rg.bam -o sorted.bam --threads $nt
 samtools index sorted.bam
@@ -89,7 +104,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon plot InsertSizeMetricAlgo -o is-report.pdf is
 # 3. Remove Duplicate Reads
 # To mark duplicate reads only without removing them, remove "--rmdup" in the second command
 # ******************************************
-$SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y --algo LocusCollector --fun score_info score.txt
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --algo LocusCollector --fun score_info score.txt
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y --algo Dedup --rmdup --score_info score.txt --metrics dedup_metrics.txt deduped.bam
 
 
@@ -117,13 +132,23 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt --algo QualCal --plot --before 
 $SENTIEON_INSTALL_DIR/bin/sentieon plot QualCal -o recal_plots.pdf recal.csv
 
 # ******************************************
-# 5b. ReadWriter to output recalibrated bam
+# 6b. ReadWriter to output recalibrated bam
 # This stage is optional as variant callers
 # can perform the recalibration on the fly
 # using the before recalibration bam plus
 # the recalibration table
 # ******************************************
-#$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo ReadWriter tumor_recaled.bam
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo ReadWriter recaled.bam
+
+# ******************************************
+# 6c. bam-statistics
+# ******************************************
+# rename the final bam-file
+mv recaled.bam "$sample".bam
+mv recaled.bam.bai "$sample".bam.bai
+
+$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" -n "$sample"_bam_statistics -np 1 --no-numbering
+
 
 
 # ******************************************
@@ -140,15 +165,30 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo TNscope --tumor_sample $sample -d $dbsnp --trim_soft_clip --disable_detector sv output-TNScope.vcf.gz
 
-# ******************************************
-# 7a. Annotation with VEP  
-# ******************************************
-# something in my environment interferes with perl so I can only run vep by first removing all modules  
-module purge
-module load tools
-module load perl/5.24.0 ensembl-vep/95.1
 
-vep -i output-TNScope.vcf.gz -o output-TNScope.vep.vcf.gz --sift b --polyphen b --symbol --vcf --format vcf --cache --compress_output bgzip --assembly GRCh37 --port 3337 --dir /home/databases/variant_effect_predictor/.vep/
+# ******************************************
+# 7. Clean-up and VCF-stats submission
+# The final bam-file is the recaled.bam + *bai which may be used in other
+# analysis
+# VCF-stats are found with vcf statistics and all quality is kept in
+# quality_reports
+# ******************************************
+# rename the final vcf-file to comply with naming scheme
+mv output-hc.vcf.gz "$sample"-hc.vcf.gz
+mv output-TNScope.vcf.gz "$sample"-TNScope.vcf.gz
+mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
+mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi 
 
-vep -i output-hc.vcf.gz -o output-hc.vep.vcf.gz --sift b --polyphen b --symbol --vcf --format vcf --cache --compress_output bgzip --assembly GRCh37 --port 3337 --dir /home/databases/variant_effect_predictor/.vep/
+
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_-hc-vcf_statistics -np 1 --no-numbering
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-TNScope.vcf.gz" --name "$sample"_-TNScope-vcf_statistics -np 1 --no-numbering
+
+# remove all the files we don't want to keep:
+rm recal* 
+rm splitted.bam*
+rm realigned.bam*
+rm score.txt*
+rm sorted.Aligned*
+rm rg.bam*
+rm deduped.bam*
 

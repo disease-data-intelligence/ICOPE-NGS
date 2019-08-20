@@ -5,7 +5,8 @@
 # using a single sample with fastq files
 # This is VERSION 1.0 
 # *******************************************
-
+# Sentieon Germline version 1 
+pipeline_version="PSG01"
 # Full path to code repo 
 apps="/home/projects/HT2_leukngs/apps/github/code"
 
@@ -13,6 +14,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 # ASSUMPTIONS
 # fastq-files are name _R1 and R2 as the final part of the filename. After this only extension (can be zipped or not) 
 # reads are aligned to hg37 decoy genome 
+# *******************************************
 
 set -x
 #data_dir is  the directory of the input symlinks (symlinks should not be followed, done with -s option) 
@@ -45,7 +47,6 @@ echo "SENTIEON INSTALL DIR="$SENTIEON_INSTALL_DIR
 # It is important to assign meaningful names in actual cases.
 # It is particularly important to assign different read group names.
 # SENTIEON VERSION 1.0 code  
-pipeline_version="PS001"
 samplename=$(basename $fastq_1 | sed 's/.R1.*//')
 sample="$samplename"."$pipeline_version"
 group=$(zgrep -m 1 '@'  $fastq_1 | cut -d ':' -f3-4)
@@ -83,8 +84,8 @@ $SENTIEON_INSTALL_DIR/bin/sentieon plot InsertSizeMetricAlgo -o is-report.pdf is
 # 3. Remove Duplicate Reads
 # To mark duplicate reads only without removing them, remove "--rmdup" in the second command
 # ******************************************
-$SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y --algo LocusCollector --fun score_info score.txt
-$SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y  --algo Dedup --rmdup --score_info score.txt --metrics dedup_metrics.txt deduped.bam
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --algo LocusCollector --fun score_info score.txt
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --algo Dedup --rmdup --score_info score.txt --metrics dedup_metrics.txt deduped.bam
 
 # ******************************************
 # 4. Indel realigner
@@ -117,7 +118,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 mv recaled.bam "$sample".bam 
 mv recaled.bam.bai "$sample".bam.bai 
 
-$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample"recaled.bam" -n "$sample"_bam_statistics -np 1 --no-numbering 
+$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --hours 15 -n "$sample"_bam_statistics -np 1 --no-numbering 
 
 
 # ******************************************
@@ -138,9 +139,10 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 # rename the final vcf-file to comply with naming scheme 
 mv output-hc.vcf.gz "$sample"-hc.vcf.gz
 mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"output-hc.vcf.gz" --name "$sample"_vcf_statistics -np 1 --no-numbering 
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_vcf_statistics -np 1 --no-numbering 
 
 # remove all the files we don't want to keep: 
+rm recal*
 rm realigned.bam*
 rm score.txt*
 rm sorted.bam*

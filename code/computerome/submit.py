@@ -53,17 +53,10 @@ def get_args(args=None):
     print("# job name set to", args.name)
     print(args.workdir)
 
-    if not args.minutes and not args.hours: args.minutes = 30
+    if not args.minutes and not args.hours:
+        args.minutes = 30
 
     if args.array:
-       # # validate format of inputs
-       # array_range = args.array.split("-")
-       # if len(array_range) != 2: parser.error("-a needs two '-' separated values eg. 608-631")
-       # try:
-       #     [int(value) for value in array_range]
-       # except ValueError:
-       #     parser.error("-a needs two '-' separated values eg 608-631")
-
         if "$PBS_ARRAYID" not in args.script:
             parser.error("When using -a the script needs to contain $PBS_ARRAYID")
 

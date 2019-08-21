@@ -3,6 +3,10 @@
 # Script to perform RNA seq variant calling
 # *******************************************
 
+
+# SENTIEON TUMOR VERSION 1.0 for RNA seq
+pipeline_version="PST01"
+
 # Full path to code repo
 apps="/home/projects/HT2_leukngs/apps/github/code"
 
@@ -11,6 +15,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 # ASSUMPTIONS
 # fastq-files are name _R1 and R2 as the final part of the filename. After this only extension (can be zipped or not)
 # reads are aligned to hg37 decoy genome
+# *******************************************
 
 set -x
 #data_dir is  the directory of the input symlinks (symlinks should not be followed,which is configured with -s option)
@@ -23,6 +28,7 @@ nt=$2 #number of threads to use in computation
 
 echo "# Input files: $fastq_1 and $fastq_2"
 echo "# Input number of threads:" $nt
+echo "# Aligning to b37"
 
 reference_dir=/home/databases/gatk-legacy-bundles/b37
 
@@ -44,8 +50,7 @@ genomeDir=/home/projects/HT2_leukngs/data/references/hg37/star_genome_hg37
 
 # It is important to assign meaningful names in actual cases meaning that we will follow the usual naming scheme! 
 # It is particularly important to assign different read group names.
-# SENTIEON VERSION 1.0 code
-pipeline_version="PST01"
+
 samplename=$(basename $fastq_1 | sed 's/.R1.*//')
 sample="$samplename"."$pipeline_version"
 RG=$(zgrep -m 1 '@'  $fastq_1 | cut -d ':' -f3-4)
@@ -147,8 +152,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 mv recaled.bam "$sample".bam
 mv recaled.bam.bai "$sample".bam.bai
 
-$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" -n "$sample"_bam_statistics -np 1 --no-numbering
-
+$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" -n "$sample"_bam_statistics -np 2 --no-numbering --hours 15
 
 
 # ******************************************
@@ -180,8 +184,9 @@ mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
 mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi 
 
 
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_-hc-vcf_statistics -np 1 --no-numbering
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-TNScope.vcf.gz" --name "$sample"_-TNScope-vcf_statistics -np 1 --no-numbering
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"-hc-vcf_statistics -np 1 --no-numbering
+
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-TNScope.vcf.gz" --name "$sample"-TNScope-vcf_statistics -np 1 --no-numbering
 
 # remove all the files we don't want to keep:
 rm recal* 

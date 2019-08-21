@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+module load anaconda3/4.4.0
 module load bcftools/1.9
 
 # this script collects some stats on the vcf-files AND moves all quality reports to the designated folder 

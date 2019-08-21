@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+module load anaconda3/4.4.0
 module load samtools/1.9
 module load bedtools/2.28.0
 

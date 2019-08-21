@@ -184,8 +184,9 @@ mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
 mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi 
 
 
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_-hc-vcf_statistics -np 1 --no-numbering
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-TNScope.vcf.gz" --name "$sample"_-TNScope-vcf_statistics -np 1 --no-numbering
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"-hc-vcf_statistics -np 1 --no-numbering
+
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-TNScope.vcf.gz" --name "$sample"-TNScope-vcf_statistics -np 1 --no-numbering
 
 # remove all the files we don't want to keep:
 rm recal* 

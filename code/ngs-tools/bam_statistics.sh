@@ -12,7 +12,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 mkdir -p quality_reports
 
 echo "# Getting coverage statistics"
-bed=/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.filtered.bed
+bed=/home/projects/HT2_leukngs/data/references/ hg37/USCS.hg37.canonical.exons.filtered.bed
 genepanel=/home/projects/HT2_leukngs/data/references/general/genepanel.txt
 
 samtools bedcov $bed $bam > quality_reports/cov.canonical.exons.bed

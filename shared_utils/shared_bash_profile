@@ -1,0 +1,12 @@
+
+# fix collaboration issues (change permissions) 
+umask 007
+
+# Load modules 
+# NOTE: These are basic modules that are necessary for running python, accessing other modules and 
+# monitoring jobs. 
+# We will keep loading modules within the scripts to make sure we track versions correctly. 
+module load moab torque
+module load tools
+module load anaconda3/4.4.0
+

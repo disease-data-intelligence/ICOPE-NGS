@@ -38,9 +38,8 @@ $apps/quality/visualize_stats.py dp quality_reports/"$opt"DP_vcf_stats.txt
 # clean up
 echo "# Moving files to quality_reports dir" 
 mv *metrics* quality_reports
-mv *report* quality_reports
+mv *-report.pdf quality_reports
 mv *summary* quality_reports
-mv *plots* quality_reports
 
 end=`date +%s`
 runtime=$((end-start))

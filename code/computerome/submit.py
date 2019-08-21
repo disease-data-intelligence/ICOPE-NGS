@@ -212,6 +212,8 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
         'export NPROC={nproc}\n' \
         'echo "This job has allocated $NPROC nodes"\n' \
         '\n' \
+        '# Load user Bash settings:\n' \
+        'source /home/projects/HT2_leukngs/apps/github/shared_utils/shared_bash_profile\n' \
         ''.format(extra=extra_PBS, name=name, nproc=nproc, memory=memory, walltime=walltime, workdir=workdir)
 
     if '2' in str(python):

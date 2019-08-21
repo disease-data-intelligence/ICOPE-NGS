@@ -152,8 +152,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 mv recaled.bam "$sample".bam
 mv recaled.bam.bai "$sample".bam.bai
 
-$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" -n "$sample"_bam_statistics -np 1 --no-numbering
-
+$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" -n "$sample"_bam_statistics -np 2 --no-numbering --hours 15
 
 
 # ******************************************

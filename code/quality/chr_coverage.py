@@ -29,7 +29,7 @@ def main(file):
             upper_limit += 1
             covered_fraction = cov[cov['chr'] == frag][0:upper_limit]['frac'].sum()
             # print("# Recomputed upper limit to:", upper_limit, "covered fraction", covered_fraction)
-        if upper_limit > 150:
+        if upper_limit > 100:
             skip = 10
         sns.barplot(x='cov', ax=ax, y='frac', data=cov[cov['chr'] == frag][0:upper_limit])
         total = cov[cov['chr'] == frag].iloc[0, 3]

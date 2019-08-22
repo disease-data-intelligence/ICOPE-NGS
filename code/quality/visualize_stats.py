@@ -25,7 +25,6 @@ def plot_qual(filename):
         ax.xaxis.set_major_locator(ticker.MultipleLocator(50))
         ax.xaxis.set_minor_locator(ticker.MultipleLocator(2.5))
         ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
-        ax.set_xlim(min(qual['[3]Quality']), max(qual['[3]Quality'])+5)
         ax.set_title("Quality score distribution for " + pretty_names[col] + ' ' + filename.split('.')[0].replace('qual',''))
         ax.set_xlabel('Quality score')
         plt.setp(ax.patches, linewidth=0)

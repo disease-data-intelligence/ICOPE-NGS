@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
 import version
 
-def main(file):
-    cov = pd.read_csv(file, sep='\t')
+def main(filename):
+    cov = pd.read_csv(filename, sep='\t')
     cov.columns = ['chr', 'cov', 'obs_bases', 'total', 'frac']
     upper_limit = 50
     plots = cov['chr'].unique()
@@ -43,7 +43,8 @@ def main(file):
             label.set_visible(True)
 
     fig.tight_layout()
-    outname = 'coverage_pr_chromosome.png'
+    outname = filename.replace('.cov', '') + '_coverage_pr_chromosome.png'
+    print("# saving coverage pr. chromosome plot to", outname)
     plt.savefig(outname, format='png')
 
 

@@ -35,6 +35,8 @@ def get_args(args=None):
     parser.add_argument("-T", "--tunnel", dest="tunnel", action="store_true",
                         help="Flag set to include opening and closing tunnel for Sentieon pipeline. \
                         Default name are sentieonstart.sh and sentieonstop.sh located in your $HOME")
+    parser.add_argument("-R", "--reserve", dest="reserve", action="store_true",
+                        help="Use this flag to submit job to our own reserves nodes")
     parser.add_argument("-a", "--array",
                         help="Used to create job array, the job number will be $PBS_ARRAYID. Insert numbers to run eg. 608-631.")
     parser.add_argument("-max_jobs", "--max_jobs", type=int, default=48, 
@@ -162,7 +164,7 @@ def get_array_PBS(array, n_jobs):
 
 
 def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=None, python=3, wait_for=None, 
-               extra_PBS="", verbose=False, tunnel=False):
+               extra_PBS="", reserve=False, verbose=False, tunnel=False):
     """
     Write a qsub file that can be run on computerome.
     :param name: name of the job
@@ -187,6 +189,9 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
     if wait_for:
         qsub_string += \
             '#PBS -W depend=afterok:{wait_for}\n'.format(wait_for=wait_for)
+    if reserve:
+        qsub_string += \
+            '#PBS -l advres=HT2_leukngs.916947\n'
 
     qsub_string += \
         '### Job name (comment out the next line to get the name of the script used as the job name)\n' \
@@ -232,6 +237,8 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
         
     qsub_string += '\n' + script + '\n \n'
     qsub_string += \
+        'echo "-----------------------------------------------------------------------------------------------------"\n' \ 
+        'echo "End at `date`"\n' \
         'sleep 5\n' \
         'exit 0\n'
 
@@ -261,7 +268,7 @@ def main(args):
         array_string += write_tunnel(home)
     if args.verbose: print("write qsub")
     fname = write_qsub(args.name, args.script, args.nproc, args.memory, walltime, args.workdir, python, args.wait_for, 
-                       array_string, args.verbose, args.tunnel)
+                       array_string, args.reserve, args.verbose, args.tunnel)
     if args.verbose: print("submit qsub")
     if not args.dry_run: 
         submit(fname)

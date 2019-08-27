@@ -39,8 +39,6 @@ echo "# Moving files to quality_reports dir"
 mv *metrics* quality_reports
 mv *-report.pdf quality_reports
 mv *summary* quality_reports
-# this is done from the script 
-mv coverage_pr_chromosome.png quality_reports
 
 end=`date +%s`
 runtime=$((end-start))

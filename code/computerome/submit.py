@@ -229,8 +229,7 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
 
     qsub_string += \
         '\n' \
-        'start=`date +%s`\n' \
-        'echo $start \n' \
+        'start=`date +%s` \n' \
         'echo "Now the user defined script is run. After the ---- line, the STDOUT stream from the script is pasted."\n' \
         'echo "Start at `date`"\n' \
         'echo "-----------------------------------------------------------------------------------------------------"\n' 
@@ -241,11 +240,10 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
     qsub_string += '\n' + script + '\n \n'
     qsub_string += \
         '\n' \
-        'echo "-----------------------------------------------------------------------------------------------------"\n' \
         'echo "End at `date`"\n' \
-        'end=`date +%s`' \
+        'end=`date +%s` \n' \
         'runtime=$((end-start))\n' \
-        'echo $runtime\n' \
+        'echo Runtime: $runtime seconds\n' \
         'sleep 5\n' \
         'exit 0\n'
 

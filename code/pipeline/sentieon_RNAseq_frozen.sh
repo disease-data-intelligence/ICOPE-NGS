@@ -194,4 +194,5 @@ rm score.txt*
 rm sorted.Aligned*
 rm rg.bam*
 rm deduped.bam*
+rm sorted.bam* 
 

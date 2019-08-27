@@ -240,6 +240,7 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
     qsub_string += '\n' + script + '\n \n'
     qsub_string += \
         '\n' \
+        'echo "-----------------------------------------------------------------------------------------------------"\n' \
         'echo "End at `date`"\n' \
         'end=`date +%s` \n' \
         'runtime=$((end-start))\n' \

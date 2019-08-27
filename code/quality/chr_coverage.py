@@ -11,9 +11,11 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt 
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
 import version
+import pprinting
 
-def main(filename):
+def main(filename, input_upper_limit):
     cov = pd.read_csv(filename, sep='\t')
+    print("succesfully read", filename)
     cov.columns = ['chr', 'cov', 'obs_bases', 'total', 'frac']
     upper_limit = 50
     plots = cov['chr'].unique()
@@ -23,9 +25,10 @@ def main(filename):
 
     fig, axes = plt.subplots(int(np.ceil(len(plots) / 3)), 3, figsize=(30, len(plots)))
     for frag, ax in zip(plots, fig.axes):
+        pprinting.print_overwrite("# Now plotting region: ", frag)
         covered_fraction = cov[cov['chr'] == frag][0:upper_limit]['frac'].sum()
         skip = 5
-        while covered_fraction < 0.90:
+        while covered_fraction < 0.90 and upper_limit <= input_upper_limit:
             upper_limit += 1
             covered_fraction = cov[cov['chr'] == frag][0:upper_limit]['frac'].sum()
             # print("# Recomputed upper limit to:", upper_limit, "covered fraction", covered_fraction)
@@ -41,7 +44,7 @@ def main(filename):
 
         for label in ax.xaxis.get_ticklabels()[::skip]:
             label.set_visible(True)
-
+    print("\n # Done plotting ...")
     fig.tight_layout()
     outname = filename.replace('.cov', '') + '_coverage_pr_chromosome.png'
     print("# saving coverage pr. chromosome plot to", outname)
@@ -54,8 +57,10 @@ if __name__ == '__main__':
     modules = version.imports(global_modules)
     version.print_modules(list(modules))
     filename = sys.argv[1]
+    input_upper_limit = int(sys.argv[2])
     print("# input:", filename)
-    main(filename)
+    main(filename, input_upper_limit)
+    print("# Done!")
 
 
 

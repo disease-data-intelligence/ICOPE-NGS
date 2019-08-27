@@ -24,7 +24,7 @@ $apps/quality/gene_coverage.py quality_reports/cov.canonical.exons.bed $genepane
 
 echo "# Getting coverage pr. chromosome"
 bedtools genomecov -ibam $bam -max 150 > quality_reports/genome.cov
-$apps/quality/chr_coverage.py quality_reports/genome.cov
+$apps/quality/chr_coverage.py quality_reports/genome.cov 150
 
 end=`date +%s`
 runtime=$((end-start))

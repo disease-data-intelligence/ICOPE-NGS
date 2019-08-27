@@ -20,7 +20,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 set -x
 #data_dir is  the directory of the input symlinks (symlinks should not be followed,which is configured with -s option)
 data_dir="$( dirname "$(realpath -s $1)" )"
-fastq_1=$1 
+fastq_1="$(realpath -s $1)" 
 fastq_2=$(sed 's/R1/R2/g' <<< "$fastq_1")
 
 # other settings
@@ -152,7 +152,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 mv recaled.bam "$sample".bam
 mv recaled.bam.bai "$sample".bam.bai
 
-$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" -n "$sample"_bam_statistics -np 2 --no-numbering --hours 15
+$apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --hours 15 -n "$sample"_bam_statistics -np 2 --no-numbering
 
 
 # ******************************************
@@ -184,9 +184,7 @@ mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
 mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi 
 
 
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"-hc-vcf_statistics -np 1 --no-numbering
-
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-TNScope.vcf.gz" --name "$sample"-TNScope-vcf_statistics -np 1 --no-numbering
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz hc" --name "$sample"-hc-vcf_statistics -np 1 --no-numbering
 
 # remove all the files we don't want to keep:
 rm recal* 

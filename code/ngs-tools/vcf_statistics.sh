@@ -25,7 +25,7 @@ mkdir -p quality_reports
 apps="/home/projects/HT2_leukngs/apps/github/code"
 
 # VCF statistics
-echo "# Collecting VCF stats"
+echo "# Collecting VCF stats for" $1 
 bcftools stats $vcf > quality_reports/"$opt"vcf_summary.txt
 grep ^SN -B 1 quality_reports/"$opt"vcf_summary.txt > quality_reports/"$opt"SN_stats.txt
 grep ^QUAL -B 1 quality_reports/"$opt"vcf_summary.txt > quality_reports/"$opt"QUAL_vcf_stats.txt

@@ -45,7 +45,7 @@ def get_args(args=None):
                              "If more array jobs are started than this number, some of them will wait to run.")
     parser.add_argument("--verbose", action="store_true", help="Add to execute set -xv and more information.")
     parser.add_argument("-np", "--nproc", default=28, dest="nproc", help="Number of processors to use")
-    parser.add_argument("-test", dest="dry_run", action="store_true", help="For testing writing the qsub-script only. Will not submit to Computerome.")
+    parser.add_argument("-test", "--test", dest="dry_run", action="store_true", help="For testing writing the qsub-script only. Will not submit to Computerome.")
     
     args = parser.parse_args(args)
     if args.disable_numbering: 
@@ -190,6 +190,7 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
         qsub_string += \
             '#PBS -W depend=afterok:{wait_for}\n'.format(wait_for=wait_for)
     if reserve:
+        print("Submitting to nodes reserved for HT2_leukngs")
         qsub_string += \
             '#PBS -l advres=HT2_leukngs.916947\n'
 
@@ -228,6 +229,8 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
 
     qsub_string += \
         '\n' \
+        'start=`date +%s`\n' \
+        'echo $start \n' \
         'echo "Now the user defined script is run. After the ---- line, the STDOUT stream from the script is pasted."\n' \
         'echo "Start at `date`"\n' \
         'echo "-----------------------------------------------------------------------------------------------------"\n' 
@@ -240,6 +243,9 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
         '\n' \
         'echo "-----------------------------------------------------------------------------------------------------"\n' \
         'echo "End at `date`"\n' \
+        'end=`date +%s`' \
+        'runtime=$((end-start))\n' \
+        'echo $runtime\n' \
         'sleep 5\n' \
         'exit 0\n'
 
@@ -262,14 +268,14 @@ def main(args):
     walltime = get_walltime(args.hours, args.minutes)
     python = 2 if args.python2 else 3
 
-    array_string = get_array_PBS(args.array, args.max_jobs)
+    extra_string = get_array_PBS(args.array, args.max_jobs)
     if args.tunnel:
         home = str(Path.home())
         print("# Configuring tunnel with scripts in", home) 
-        array_string += write_tunnel(home)
+        extra_string += write_tunnel(home)
     if args.verbose: print("write qsub")
     fname = write_qsub(args.name, args.script, args.nproc, args.memory, walltime, args.workdir, python, args.wait_for, 
-                       array_string, args.reserve, args.verbose, args.tunnel)
+                       extra_string, args.reserve, args.verbose, args.tunnel)
     if args.verbose: print("submit qsub")
     if not args.dry_run: 
         submit(fname)

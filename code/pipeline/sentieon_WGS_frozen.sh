@@ -26,7 +26,7 @@ fastq_2=$(sed 's/R1/R2/g' <<< "$fastq_1")
 
 
 # Other settings
-# default value for number of threads
+# add optional argument for number of threads, default is 28
 if [[ -z $2 ]]; then
         nt=28
         echo "Threads: Running with defaults names"

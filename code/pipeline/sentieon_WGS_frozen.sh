@@ -26,7 +26,7 @@ fastq_2=$(sed 's/R1/R2/g' <<< "$fastq_1")
 
 
 # Other settings
-# add optional argument for file naming, default is no prefix
+# default value for number of threads
 if [[ -z $2 ]]; then
         nt=28
         echo "Threads: Running with defaults names"

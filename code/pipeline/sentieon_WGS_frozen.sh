@@ -24,8 +24,16 @@ echo $data_dir
 fastq_1="$(realpath -s $1)"
 fastq_2=$(sed 's/R1/R2/g' <<< "$fastq_1")
 
+
 # Other settings
-nt=$2 #number of threads to use in computation
+# add optional argument for file naming, default is no prefix
+if [[ -z $2 ]]; then
+        nt=28
+        echo "Threads: Running with defaults names"
+else
+    echo Got threads $2
+    nt=$2
+fi
 
 echo "# Input files: $fastq_1 and $fastq_2"
 echo "# Input number of threads:" $nt 

@@ -1,6 +1,6 @@
 #!/bin/bash 
 #!/bin/bash
-#PBS -W group_list=pr_potentia -A pr_potentia 
+#PBS -W group_list=HT2_leukngs -A HT2_leukngs 
 #PBS -l nodes=1:ppn=1,mem=50gb,walltime=000:50:00
 
 vcf=$1 

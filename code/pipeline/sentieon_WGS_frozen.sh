@@ -147,7 +147,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 # rename the final vcf-file to comply with naming scheme 
 mv output-hc.vcf.gz "$sample"-hc.vcf.gz
 mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_vcf_statistics -np 1 --no-numbering 
+$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_vcf_statistics -mem 5gb -np 1 --no-numbering 
 
 # remove all the files we don't want to keep: 
 rm recal*

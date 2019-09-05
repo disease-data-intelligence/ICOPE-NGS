@@ -9,5 +9,7 @@ umask 007
 module load moab torque
 module load tools
 module load anaconda3/4.4.0
+# anaconda has a samtools module which can interfere with the computerome version, thus we
+# have to load it here to avoid conflict 
 module load samtools/1.9
 

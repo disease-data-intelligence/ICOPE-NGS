@@ -149,6 +149,11 @@ mv output-hc.vcf.gz "$sample"-hc.vcf.gz
 mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
 $apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_vcf_statistics -mem 5gb -np 1 --no-numbering 
 
+# ******************************************
+# 8. Generating VEP-files
+# ******************************************
+$apps/computerome/submit.py "$apps/ngs-tools/vep.sh "$sample"-hc" --name "$sample"-hc-vcf_vep -np=1 --no-numbering --hours=5 -mem=50
+
 # remove all the files we don't want to keep: 
 rm recal*
 rm realigned.bam*

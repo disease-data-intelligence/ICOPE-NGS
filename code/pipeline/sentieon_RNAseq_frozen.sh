@@ -96,7 +96,7 @@ STAR --genomeDir $genomeDir \
 # 1b. Sorting
 # outSAMtype does not work, so we use samtools for sorting by coordinate
 # ******************************************
-module load samtools/1.9
+module load tools samtools/1.9
 echo "Loaded samtools 1.9 for sorting, indexing and adding read group" 
 samtools addreplacerg sorted.Aligned.out.bam -r ID:$RG -r PU:$platformUnit -r SM:$sample -r PL:$platform -m overwrite_all -o rg.bam
 samtools sort rg.bam -o sorted.bam --threads $nt
@@ -190,8 +190,12 @@ mv output-TNScope.vcf.gz "$sample"-TNScope.vcf.gz
 mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
 mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi 
 
-
 $apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz hc" --name "$sample"-hc-vcf_statistics -np 1 --no-numbering
+
+# ******************************************
+# 8. Generating VEP-files
+# ******************************************
+$apps/computerome/submit.py "$apps/ngs-tools/vep.sh "$sample"-hc" --name "$sample"-hc-vcf_vep -np=1 --no-numbering --hours=2 -mem=50 
 
 # remove all the files we don't want to keep:
 rm recal* 

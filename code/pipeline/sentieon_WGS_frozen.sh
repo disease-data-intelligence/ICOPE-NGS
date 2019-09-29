@@ -12,7 +12,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 
 # *******************************************
 # ASSUMPTIONS
-# fastq-files are name _R1 and R2 as the final part of the filename. After this only extension (can be zipped or not) 
+# fastq-files are name R1 and R2 as the final part of the filename. After this only extension (can be zipped or not) 
 # reads are aligned to hg37 decoy genome 
 # *******************************************
 
@@ -149,10 +149,6 @@ mv output-hc.vcf.gz "$sample"-hc.vcf.gz
 mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
 $apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_vcf_statistics -mem 5gb -np 1 --no-numbering 
 
-# ******************************************
-# 8. Generating VEP-files
-# ******************************************
-$apps/computerome/submit.py "$apps/ngs-tools/vep.sh "$sample"-hc" --name "$sample"-hc-vcf_vep -np=1 --no-numbering --hours=5 -mem=50
 
 # remove all the files we don't want to keep: 
 rm recal*

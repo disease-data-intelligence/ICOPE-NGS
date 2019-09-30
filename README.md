@@ -3,11 +3,9 @@
 Code for running the Sentieon pipeline (WGS and RNA-seq), monitoring and submitting jobs to Computerome and do quality checks with python scripts. 
 If you write something useful, please share it with us here, for instance a general test script.  
 
-###
-
-# TaskManagement-
-We are currenlty tracking what we're doing on this board: 
-https://trello.com/b/oEowGRCr/ngs-from-raw-data-to-db 
+### 
+# Task Management
+We are currenlty tracking what we're doing on this [Trello-board](https://trello.com/b/oEowGRCr/ngs-from-raw-data-to-db) 
 Please keep it updated :-) 
 
 # Tasks

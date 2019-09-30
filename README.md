@@ -6,7 +6,9 @@ If you write something useful, please share it with us here, for instance a gene
 ###
 
 # TaskManagement-
-A How-To on task management for the DDI group
+We are currenlty tracking what we're doing on this board: 
+https://trello.com/b/oEowGRCr/ngs-from-raw-data-to-db 
+Please keep it updated :-) 
 
 # Tasks
 
@@ -25,5 +27,3 @@ A How-To on task management for the DDI group
 - [ ] project: _Automated Kanban Project_
 - [ ] check automated kanban
 - [ ] clone repositor
-
-## THIS IS A TESETy

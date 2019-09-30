@@ -5,8 +5,8 @@ If you write something useful, please share it with us here, for instance a gene
 
 ### 
 # Task Management
-We are currenlty tracking what we're doing on this [Trello-board](https://trello.com/b/oEowGRCr/ngs-from-raw-data-to-db) 
-Please keep it updated :-) 
+We are currenlty tracking what we're doing on this [Trello-board](https://trello.com/b/oEowGRCr/ngs-from-raw-data-to-db).  
+Please keep it updated with what you're doing ATM :-) 
 
 # Tasks
 

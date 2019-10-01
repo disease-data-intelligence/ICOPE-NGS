@@ -56,6 +56,7 @@ export SENTIEON_LICENSE=localhost:8990
 reference_dir=/home/databases/gatk-legacy-bundles/b37
 fasta=$reference_dir/human_g1k_v37_decoy.fasta
 dbsnp=$reference_dir/dbsnp_138.b37.vcf
+bedfile=/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.filtered.bed
 
 # *******************************************
 #             PIPELINE
@@ -71,8 +72,22 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -r $fasta \
   --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y \
   $destination/$output_name-TNscope.vcf.gz
 
-## 2. Statistics
+## 2. Statistics on all somatic variants
 cd $destination 
 $apps/ngs-tools/vcf_statistics.sh $output_name-TNscope.vcf.gz somatic
 
 ## 3. Analysis ...
+vcftools --gzvcf $output_name-TNscope.vcf.gz --bed $bedfil --recode
+echo "We get" $(grep -v ^# -c out.recode.vcf) "somatic variants in the genes of interest"
+
+# compress for VEP
+bcftools view out.recode.vcf -Oz -o out.recode.vcf.gz
+bcftools index out.recode.vcf.gz
+
+# annotate
+module purge    # pearl interference issues
+$apps/ngs-tools/vep.sh out.recode
+mv out.recode.vep.vcf.gz $output_name.vep.vcf.gz
+
+# clean-up
+rm out.recode*

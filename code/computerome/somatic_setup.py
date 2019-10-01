@@ -12,15 +12,20 @@ from datetime import datetime
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Submitting paired tumor and germline analysis for somatic variants\n"
-                    "Assumes hardcoded Sentieon tumor and germline pipeline vs. 1 and only one bam-file for each.\n"
-                    "Pipeline version are the newest per default (this is updated recurrently")
+        description="Submitting paired tumor and germline analysis for somatic variants. "
+                    "Assumes hardcoded Sentieon tumor (PST01) and germline pipeline (PSG01) and only one bam-file for "
+                    "each. Pipeline version are the newest per default (this is updated recurrently in this script."
+                    "Submission jobs do not request the reserved nodes.")
     parser.add_argument('-samples', dest="samples", nargs='+', help="Sample numbers", type=str)
 
     # define version of pipelines to use (default should be updated to use the latest version)
-    parser.add_argument('-PSG', dest="PSG_version", type=str, default="01", help="Germline pipeline number (Default: 01)")
-    parser.add_argument('-PSP', dest="PSP_version", type=str, default="01", help="Paired pipeline number (Default: 01)")
-    parser.add_argument('-PST', dest="PST_version", type=str, default="02", help="Tumor pipeline number (Default 02)")
+    parser.add_argument('-PSG', '--germline-pipeline-number', dest="PSG_version", type=str, default="01",
+                        help="Germline pipeline number (Default: 01)")
+    parser.add_argument('-PSP', '--paired-pipeline-number', dest="PSP_version", type=str, default="01",
+                        help="Paired pipeline number (Default: 01). This defines number of new folders created and"
+                             "should match what is linked to from sentieon_paired_frozen.sh")
+    parser.add_argument('-PST', '--tumor-pipeline-number', dest="PST_version", type=str, default="02",
+                        help="Tumor pipeline number (Default: 02)")
     return parser
 
 

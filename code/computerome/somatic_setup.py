@@ -80,13 +80,13 @@ def main(samples, psg, pst, psp):
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
+    parsed_args = get_args()
+    print("# args:", parsed_args)
     print("# Submitting paired jobs")
     global_modules = globals()
     modules = version.imports(global_modules)
     version.print_modules(list(modules))
-    start_time = datetime.now()
-    parsed_args = get_args()
-    print("# args:", parsed_args)
     main(parsed_args.samples, parsed_args.PSG_version, parsed_args.PST_version, parsed_args.PSP_version)
     end_time = datetime.now()
     print("# Done!")

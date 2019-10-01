@@ -37,9 +37,9 @@ output_name=$(echo $(basename $destination))
 
 
 echo -e "# Name \t Filepath: "
-echo -e "# $tumor_name" \t "$tumor_path "
-echo -e "# $normal_name" \t "$normal_path "
-echo -e "# $output_name" \t "$destination " 
+echo -e "# $tumor_name \t $tumor_path "
+echo -e "# $normal_name \t $normal_path "
+echo -e "# $output_name \t $destination "
 echo "# Number of threads:" $nt
 echo "# Reference version: b37"
 

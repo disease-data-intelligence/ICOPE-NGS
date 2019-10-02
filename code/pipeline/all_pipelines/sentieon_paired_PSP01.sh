@@ -71,22 +71,28 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -r $fasta \
   --dbsnp $dbsnp \
   $destination/$output_name-TNscope.vcf.gz
 
+echo -e "Finished the somatic variant calling" 
+
 ## 2. Statistics on all somatic variants
 cd $destination 
 $apps/ngs-tools/vcf_statistics.sh $output_name-TNscope.vcf.gz somatic
 
 ## 3. Analysis ...
 vcftools --gzvcf $output_name-TNscope.vcf.gz --bed $bedfil --recode
-echo "We get" $(grep -v ^# -c out.recode.vcf) "somatic variants in the genes of interest"
+nvariants=$(grep -v ^# -c out.recode.vcf)
+echo "We get $nvariants somatic variants in the genes of interest"
 
 # compress for VEP
+echo "Compressing for VEP" 
 bcftools view out.recode.vcf -Oz -o out.recode.vcf.gz
 bcftools index out.recode.vcf.gz
 
 # annotate
+echo "Running VEP"
 module purge    # pearl interference issues
 $apps/ngs-tools/vep.sh out.recode
 mv out.recode.vep.vcf.gz $output_name.vep.vcf.gz
 
 # clean-up
+echo "Deleting intermediate  files (out.recode*)" 
 rm out.recode*

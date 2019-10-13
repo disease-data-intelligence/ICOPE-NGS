@@ -163,9 +163,9 @@ def configure_outfiles(workdir, script, script_name, move_outfiles=False):
         pipeline = script.split(' ')[0]
         sample_name = script.split(' ')[1]  # purposely ony take two first element as we can have a third for nproc
         version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh','')
-        outbase = workdir + '/' + sample_name + '.' + version_suffix + '/' + script_name
+        outbase = workdir + '/' + sample_name + '.' + version_suffix
     else:
-        outbase = workdir + '/' + script_name
+        outbase = workdir
     return outbase
 
 
@@ -214,8 +214,8 @@ def write_qsub(name, script, out_base, nproc=1, memory=20, walltime='1:00:00', w
         '### Job name (comment out the next line to get the name of the script used as the job name)\n' \
         '#PBS -N {name}\n' \
         '### Output files (comment out the next 2 lines to get the job name used instead)\n' \
-        '#PBS -e {out_base}.err\n' \
-        '#PBS -o {out_base}.out\n' \
+        '#PBS -e {out_base}/{name}.err\n' \
+        '#PBS -o {out_base}/{name}.out\n' \
         '### Email: no (n)\n' \
         '#PBS -M n\n' \
         '### Make the job rerunable (y)\n' \

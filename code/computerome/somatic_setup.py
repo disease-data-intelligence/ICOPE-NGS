@@ -69,7 +69,7 @@ def submit_pair(tumor, germline, dest):
     submit_string = "{a}/computerome/submit.py".format(a=apps)
     submit_string += " 'germline={g}\ntumor={t}\ndestination={d}\n".format(g=germline, t=tumor, d=dest)
     submit_string += "{a}/pipeline/sentieon_paired.sh $germline $tumor $destination' " \
-                    "--hours 3 -n {j} -np 28 --tunnel -no-nr".format(a=apps, j=jobname)
+                    "--hours 3 -n {j} -np 28 --move-outfiles --tunnel -no-nr".format(a=apps, j=jobname)
     subprocess.run(submit_string, shell=True, check=True)
     time.sleep(1)
 

@@ -162,7 +162,10 @@ def configure_outfiles(workdir, script, script_name, move_outfiles=False):
         pipeline_folder = '/home/projects/HT2_leukngs/apps/github/code/pipeline/'
         pipeline = script.split(' ')[0]
         version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh','')
-        (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[1])) # purposely ony take two first element as we can have a third for nproc
+        if version_suffix.startswith('PSP'):
+            (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[3]))
+        else:
+            (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[1])) # purposely ony take two first element as we can have a third for nproc
         outbase = dirname + '/' + filename.split('.R1')[0] + '.' + version_suffix
     else:
         outbase = workdir

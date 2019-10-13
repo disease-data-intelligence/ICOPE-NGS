@@ -256,7 +256,7 @@ def write_qsub(name, script, out_base, nproc=1, memory=20, walltime='1:00:00', w
         
     qsub_string += '\n' + script + '\n \n'
     if move_outfiles:
-        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {out_base}".format(out_base)
+        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}".format(out_base)
     qsub_string += \
         '\n' \
         'echo "-----------------------------------------------------------------------------------------------------"\n' \

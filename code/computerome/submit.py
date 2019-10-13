@@ -45,8 +45,12 @@ def get_args(args=None):
                              "If more array jobs are started than this number, some of them will wait to run.")
     parser.add_argument("--verbose", action="store_true", help="Add to execute set -xv and more information.")
     parser.add_argument("-np", "--nproc", default=28, dest="nproc", help="Number of processors to use")
-    parser.add_argument("-test", "--test", dest="dry_run", action="store_true", help="For testing writing the qsub-script only. Will not submit to Computerome.")
-    
+    parser.add_argument("-test", "--test", dest="dry_run", action="store_true",
+                        help="For testing writing the qsub-script only. Will not submit to Computerome.")
+    parser.add_argument("-move", "--move-outfiles", dest="move_outfiles", action="store_true",
+                        help="When running the pipeline, enable moving the output files to the sample folder generated "
+                             "by the scirpt. The name of the generated folder is inferred from the pipeline version "
+                             "and input sample name")
     args = parser.parse_args(args)
     if args.disable_numbering: 
         args.name = get_job_name(args.workdir, args.name, False)
@@ -153,6 +157,18 @@ def get_walltime(hours=0, minutes=0, seconds=0):
     return walltime
 
 
+def configure_outfiles(workdir, script, script_name, move_outfiles=False):
+    if move_outfiles:
+        pipeline_folder = '/home/projects/HT2_leukngs/apps/github/code/pipeline/'
+        pipeline = script.split(' ')[0]
+        sample_name = script.split(' ')[1]  # purposely ony take two first element as we can have a third for nproc
+        version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh','')
+        outbase = workdir + '/' + sample_name + '.' + version_suffix + '/' + script_name
+    else:
+        outbase = workdir + '/' + script_name
+    return outbase
+
+
 def write_tunnel(homedir):
     line = "#PBS -l prologue={dir}/sentieonstart.sh\n" \
            "#PBS -l epilogue={dir}/sentieonstop.sh\n".format(dir=homedir)
@@ -163,8 +179,8 @@ def get_array_PBS(array, n_jobs):
     return ""
 
 
-def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=None, python=3, wait_for=None, 
-               extra_PBS="", reserve=False, verbose=False, tunnel=False):
+def write_qsub(name, script, out_base, nproc=1, memory=20, walltime='1:00:00', workdir=None, python=3, wait_for=None,
+               extra_PBS="", reserve=False, verbose=False, tunnel=False, move_outfiles=False):
     """
     Write a qsub file that can be run on computerome.
     :param name: name of the job
@@ -177,7 +193,7 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
     :param extra_PBS: extra PBS lines to add at the end of the usual ones.
     :return: the filename of the qsub file.
     """
-    workdir = os.path.abspath(workdir) if workdir else os.getcwd()
+
     if not isinstance(memory, str): memory = str(memory) + 'gb'
     icope_account='HT2_leukngs'
     qsub_string = \
@@ -198,8 +214,8 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
         '### Job name (comment out the next line to get the name of the script used as the job name)\n' \
         '#PBS -N {name}\n' \
         '### Output files (comment out the next 2 lines to get the job name used instead)\n' \
-        '#PBS -e {workdir}/{name}.err\n' \
-        '#PBS -o {workdir}/{name}.out\n' \
+        '#PBS -e {out_base}.err\n' \
+        '#PBS -o {out_base}.out\n' \
         '### Email: no (n)\n' \
         '#PBS -M n\n' \
         '### Make the job rerunable (y)\n' \
@@ -220,7 +236,8 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
         '\n' \
         '# Load user Bash settings:\n' \
         'source /home/projects/HT2_leukngs/apps/github/shared_utils/shared_bash_profile\n' \
-        ''.format(extra=extra_PBS, name=name, nproc=nproc, memory=memory, walltime=walltime, workdir=workdir)
+        ''.format(extra=extra_PBS, name=name, nproc=nproc, out_base=out_base, memory=memory,
+                  walltime=walltime, workdir=workdir)
 
     if '2' in str(python):
         qsub_string += \
@@ -238,6 +255,8 @@ def write_qsub(name, script, nproc=1, memory=20, walltime='1:00:00', workdir=Non
     if verbose: qsub_string += 'set -vx\n'
         
     qsub_string += '\n' + script + '\n \n'
+    if move_outfiles:
+        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {out_base}".format(out_base)
     qsub_string += \
         '\n' \
         'echo "-----------------------------------------------------------------------------------------------------"\n' \
@@ -273,8 +292,12 @@ def main(args):
         print("# Configuring tunnel with scripts in", home) 
         extra_string += write_tunnel(home)
     if args.verbose: print("write qsub")
-    fname = write_qsub(args.name, args.script, args.nproc, args.memory, walltime, args.workdir, python, args.wait_for, 
-                       extra_string, args.reserve, args.verbose, args.tunnel)
+
+    workdir = os.path.abspath(args.workdir) if args.workdir else os.getcwd()
+    out_base = configure_outfiles(workdir, args.script, args.name, args.move_outfiles)
+
+    fname = write_qsub(args.name, args.script, out_base, args.nproc, args.memory, walltime, args.workdir, python,
+                       args.wait_for, extra_string, args.reserve, args.verbose, args.tunnel, args.move_outfiles)
     if args.verbose: print("submit qsub")
     if not args.dry_run: 
         submit(fname)

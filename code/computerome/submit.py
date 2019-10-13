@@ -161,9 +161,9 @@ def configure_outfiles(workdir, script, script_name, move_outfiles=False):
     if move_outfiles:
         pipeline_folder = '/home/projects/HT2_leukngs/apps/github/code/pipeline/'
         pipeline = script.split(' ')[0]
-        sample_name = script.split(' ')[1]  # purposely ony take two first element as we can have a third for nproc
         version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh','')
-        outbase = workdir + '/' + sample_name + '.' + version_suffix
+        (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[1])) # purposely ony take two first element as we can have a third for nproc
+        outbase = dirname + '/' + filename.split('.R1')[0] + '.' + version_suffix
     else:
         outbase = workdir
     return outbase
@@ -255,15 +255,19 @@ def write_qsub(name, script, out_base, nproc=1, memory=20, walltime='1:00:00', w
     if verbose: qsub_string += 'set -vx\n'
         
     qsub_string += '\n' + script + '\n \n'
-    if move_outfiles:
-        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}".format(out_base)
+
     qsub_string += \
         '\n' \
         'echo "-----------------------------------------------------------------------------------------------------"\n' \
         'echo "End at `date`"\n' \
         'end=`date +%s` \n' \
         'runtime=$((end-start))\n' \
-        'echo Runtime: $runtime seconds\n' \
+        'echo Runtime: $runtime seconds\n'
+
+    if move_outfiles:
+        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}".format(out_base)
+
+    qsub_string += \
         'sleep 5\n' \
         'exit 0\n'
 

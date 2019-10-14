@@ -134,7 +134,7 @@ $apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --
 # Note: Starting GATK3.7, the default of emit_conf and call_conf is changed to 10.
 # If you desire GATK-matching behavior, please change accordingly.
 # ******************************************
-$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper -d $dbsnp --emit_conf=30 --call_conf=30 output-hc.vcf.gz
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper -d $dbsnp --emit_conf=30 --call_conf=30 output.vcf.gz
 
 
 # ******************************************
@@ -145,9 +145,10 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 # quality_reports  
 # ******************************************
 # rename the final vcf-file to comply with naming scheme 
-mv output-hc.vcf.gz "$sample"-hc.vcf.gz
-mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz" --name "$sample"_vcf_statistics -mem 5gb -np 1 --no-numbering 
+mv output.vcf.gz "$sample".vcf.gz
+mv output.vcf.gz.tbi "$sample".vcf.gz.tbi
+
+$apps/ngs-tools/vcf_statistics.sh "$sample".vcf.gz
 
 
 # remove all the files we don't want to keep: 

@@ -67,18 +67,18 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -r $fasta \
   --algo TNscope \
   --tumor_sample $tumor_name --normal_sample $normal_name \
   --dbsnp $dbsnp \
-  $destination/$output_name-TNscope.vcf.gz
+  $destination/$output_name.vcf.gz
 
 echo -e "Finished the somatic variant calling" 
 
 ## 2. Statistics on all somatic variants
 cd $destination 
-$apps/ngs-tools/vcf_statistics.sh $output_name-TNscope.vcf.gz somatic
+$apps/ngs-tools/vcf_statistics.sh $output_name.vcf.gz
 
 ## 3. Analysis ...
 module load vcftools/0.1.16
 echo "Loaded vcftools/0.1.16" 
-vcftools --gzvcf $output_name-TNscope.vcf.gz --bed $bedfile --recode
+vcftools --gzvcf $output_name.vcf.gz --bed $bedfile --recode
 nvariants=$(grep -v ^# -c out.recode.vcf)
 echo "We get $nvariants somatic variants in the genes of interest"
 

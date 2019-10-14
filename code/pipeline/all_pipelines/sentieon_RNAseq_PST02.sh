@@ -19,7 +19,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 # *******************************************
 
 set -x
-#data_dir is  the directory of the input symlinks (symlinks should not be followed,which is configured with -s option)
+#data_dir is  the directory of the input symlinks (symlinks should not be followed, which is configured with -s option)
 data_dir="$( dirname "$(realpath -s $1)" )"
 fastq_1="$(realpath -s $1)" 
 fastq_2=$(sed 's/R1/R2/g' <<< "$fastq_1")
@@ -171,14 +171,14 @@ $apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --
 # Note: Starting GATK3.7, the default of emit_conf and call_conf is changed to 10.
 # If you desire GATK-matching behavior, please change accordingly.
 # ******************************************
-$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper --trim_soft_clip --call_conf 20 --emit_conf 20 -d $dbsnp output-hc.vcf.gz
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper --trim_soft_clip --call_conf 20 --emit_conf 20 -d $dbsnp output.vcf.gz
 
 
 # ******************************************
 # 6b. Variant calling with TNscope without normal sample
 # Here we could include a 'panel of normals' --pon (VCF-file) which should substitute the normal sample
 # ******************************************
-$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo TNscope --tumor_sample $sample -d $dbsnp --trim_soft_clip --disable_detector sv output-TNScope.vcf.gz
+$SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo TNscope --tumor_sample $sample -d $dbsnp --trim_soft_clip output-TNScope.vcf.gz
 
 
 # ******************************************
@@ -189,12 +189,12 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 # quality_reports
 # ******************************************
 # rename the final vcf-file to comply with naming scheme
-mv output-hc.vcf.gz "$sample"-hc.vcf.gz
+mv output.vcf.gz "$sample".vcf.gz
 mv output-TNScope.vcf.gz "$sample"-TNScope.vcf.gz
-mv output-hc.vcf.gz.tbi "$sample"-hc.vcf.gz.tbi
+mv output.vcf.gz.tbi "$sample".vcf.gz.tbi
 mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi
 
-$apps/computerome/submit.py "$apps/ngs-tools/vcf_statistics.sh "$sample"-hc.vcf.gz hc" --name "$sample"-hc-vcf_statistics -np 1 --no-numbering
+$apps/ngs-tools/vcf_statistics.sh "$sample".vcf.gz
 
 # remove all the files we don't want to keep:
 rm recal* 

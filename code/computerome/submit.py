@@ -164,9 +164,10 @@ def configure_outfiles(workdir, script, script_name, move_outfiles=False):
         version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh','')
         if version_suffix.startswith('PSP'):
             (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[3]))
+            outbase = dirname
         else:
             (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[1])) # purposely ony take two first element as we can have a third for nproc
-        outbase = dirname + '/' + filename.split('.R1')[0] + '.' + version_suffix
+            outbase = dirname + '/' + filename.split('.R1')[0] + '.' + version_suffix
     else:
         outbase = workdir
     return outbase
@@ -268,7 +269,7 @@ def write_qsub(name, script, out_base, nproc=1, memory=20, walltime='1:00:00', w
         'echo Runtime: $runtime seconds\n'
 
     if move_outfiles:
-        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}\n".format(out_base)
+        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}.qsub\n".format(out_base)
 
     qsub_string += \
         'sleep 5\n' \

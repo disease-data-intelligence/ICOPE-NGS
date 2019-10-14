@@ -160,12 +160,14 @@ def get_walltime(hours=0, minutes=0, seconds=0):
 def configure_outfiles(workdir, script, script_name, move_outfiles=False):
     if move_outfiles:
         pipeline_folder = '/home/projects/HT2_leukngs/apps/github/code/pipeline/'
-        pipeline = script.split(' ')[0]
-        version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh','')
-        if version_suffix.startswith('PSP'):
-            (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[3]))
+        if len(script.split('\n')) > 1:
+            pipeline = script.split('\n')[3].split(' ')[0]
+            version_suffix = os.readlink(pipeline).split('_')[-1].replace('.sh','')
+            (dirname, filename) = os.path.split(os.path.abspath(script.split('\n')[2].split('=')[1]))
             outbase = dirname
         else:
+            pipeline = script.split(' ')[0]
+            version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh', '')
             (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[1])) # purposely ony take two first element as we can have a third for nproc
             outbase = dirname + '/' + filename.split('.R1')[0] + '.' + version_suffix
     else:

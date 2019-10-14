@@ -271,7 +271,7 @@ def write_qsub(name, script, out_base, nproc=1, memory=20, walltime='1:00:00', w
         'echo Runtime: $runtime seconds\n'
 
     if move_outfiles:
-        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}.qsub\n".format(out_base)
+        qsub_string += "mv $PBS_O_WORKDIR/$PBS_JOBNAME.qsub {}/$PBS_JOBNAME.qsub\n".format(out_base)
 
     qsub_string += \
         'sleep 5\n' \

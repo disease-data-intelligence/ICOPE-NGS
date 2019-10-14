@@ -164,12 +164,13 @@ def configure_outfiles(workdir, script, script_name, move_outfiles=False):
             pipeline = script.split('\n')[3].split(' ')[0]
             version_suffix = os.readlink(pipeline).split('_')[-1].replace('.sh','')
             (dirname, filename) = os.path.split(os.path.abspath(script.split('\n')[2].split('=')[1]))
-            outbase = dirname
+            outbase = dirname + '/' + filename 
         else:
             pipeline = script.split(' ')[0]
             version_suffix = os.readlink(pipeline_folder + pipeline).split('_')[-1].replace('.sh', '')
             (dirname, filename) = os.path.split(os.path.abspath(script.split(' ')[1])) # purposely ony take two first element as we can have a third for nproc
             outbase = dirname + '/' + filename.split('.R1')[0] + '.' + version_suffix
+        print("# Placing outfiles according to pipeline {}, in folder {}".format(version_suffix, outbase)) 
     else:
         outbase = workdir
     return outbase

@@ -2,6 +2,7 @@
 
 import sys
 
+
 def print_overwrite(*line, **kwargs):
     """
     Print by overwriting the last print line.

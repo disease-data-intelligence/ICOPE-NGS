@@ -54,7 +54,6 @@ export SENTIEON_LICENSE=localhost:8990
 reference_dir=/home/databases/gatk-legacy-bundles/b37
 fasta=$reference_dir/human_g1k_v37_decoy.fasta
 dbsnp=$reference_dir/dbsnp_138.b37.vcf
-bedfile=/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.filtered.bed
 
 # *******************************************
 #             PIPELINE
@@ -75,28 +74,4 @@ echo -e "Finished the somatic variant calling"
 cd $destination 
 $apps/ngs-tools/vcf_statistics.sh $output_name.vcf.gz
 
-## 3. Analysis ...
-module load vcftools/0.1.16
-echo "Loaded vcftools/0.1.16" 
-vcftools --gzvcf $output_name.vcf.gz --bed $bedfile --recode
-nvariants=$(grep -v ^# -c out.recode.vcf)
-echo "We get $nvariants somatic variants in the genes of interest"
-
-# compress for VEP
-echo "Compressing for VEP" 
-module load bcftools/1.9 
-echo "Loaded bcftools/1.9" 
-bcftools view out.recode.vcf -Oz -o out.recode.vcf.gz
-bcftools index out.recode.vcf.gz
-
-# annotate
-echo "Running VEP"
-module purge    # pearl interference issues
-# some people use apps alias in other settings so it is overwritten again 
-apps="/home/projects/HT2_leukngs/apps/github/code"
-$apps/ngs-tools/vep.sh out.recode
-mv out.recode.vep.vcf.gz $output_name.vep.vcf.gz
-
-# clean-up
-echo "Deleting intermediate  files (out.recode*)" 
-rm out.recode*
+$apps/ngs-tools/find_relevant_genes.sh $output_name.vcf.gz

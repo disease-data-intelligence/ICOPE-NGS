@@ -201,9 +201,7 @@ rm recal*
 rm splitted.bam*
 rm realigned.bam*
 rm score.txt*
-rm sorted.Aligned*
 rm sorted.bam*
-rm rg.bam*
 rm deduped.bam*
 
 

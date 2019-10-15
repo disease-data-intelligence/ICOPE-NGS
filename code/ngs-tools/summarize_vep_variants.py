@@ -52,9 +52,7 @@ def parse_info(data):
 def parse_vcf(sample):
     assert os.path.exists(sample), sample + "does not exist"
     sample_name = sample.split('.vep')[0]
-
-    # read vcf-input
-    input = subprocess.Popen(["grep", "-v", "#"], stdin=open(sample), stdout=subprocess.PIPE)
+    input = subprocess.Popen(["zgrep", "-v", "#"], stdin=open(sample), stdout=subprocess.PIPE)
     decoding = StringIO(input.communicate()[0].decode('utf-8'))
     data = pd.read_csv(decoding, sep='\t', header=None)
     data.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO',

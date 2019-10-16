@@ -51,7 +51,7 @@ def parse_info(data):
 
 def parse_vcf(sample):
     assert os.path.exists(sample), sample + "does not exist"
-    sample_name = sample.split('.vep')[0]
+    sample_name = sample.split('.filter')[0]
     input = subprocess.Popen(["zgrep", "-v", "#"], stdin=open(sample), stdout=subprocess.PIPE)
     decoding = StringIO(input.communicate()[0].decode('utf-8'))
     data = pd.read_csv(decoding, sep='\t', header=None)
@@ -61,9 +61,9 @@ def parse_vcf(sample):
     data = data.apply(parse_format_rowwise, axis=1)
     data = parse_info(data)
     data.drop(columns=['INFO', 'FORMAT', 'FORMAT_NORMAL', 'FORMAT_TUMOR'], inplace=True)
-    selected_fields = ['Sample', 'CHROM', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence', 'Feature_type',
-                       'Feature', 'Gene', 'SIFT', 'PolyPhen']
-    return data, data.loc[:, selected_fields]
+    selected_fields = ['Sample', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence',
+                       'Feature_type', 'Feature', 'Gene', 'SIFT', 'PolyPhen']
+    return data, data[[selected_fields]]
 
 
 def main(samples, outfile):
@@ -71,7 +71,7 @@ def main(samples, outfile):
     for s in samples:
         sample_variants, selected_fields_table = parse_vcf(s)
         all_data = pd.concat([selected_fields_table, all_data], sort=True)
-    all_data.to_csv(outfile.replace('.tsv', 'selected_fields.tsv'), sep='\t')
+    all_data.to_csv(outfile.replace('.tsv', '_selected_fields.tsv'), sep='\t')
     sample_variants.to_csv(outfile, sep='\t')
 
 

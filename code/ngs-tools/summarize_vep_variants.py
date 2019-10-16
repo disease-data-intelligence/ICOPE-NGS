@@ -70,7 +70,7 @@ def main(samples, outfile):
     all_data = pd.DataFrame()
     for s in samples:
         sample_variants, selected_fields_table = parse_vcf(s)
-        all_data = pd.concat([selected_fields_table, sample_variants])
+        all_data = pd.concat([selected_fields_table, all_data], sort=True)
     all_data.to_csv('focused_' + outfile, sep='\t')
     sample_variants.to_csv(outfile, sep='\t')
 

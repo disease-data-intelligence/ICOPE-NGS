@@ -61,7 +61,7 @@ def parse_vcf(sample):
     data = data.apply(parse_format_rowwise, axis=1)
     data = parse_info(data)
     data.drop(columns=['INFO', 'FORMAT', 'FORMAT_NORMAL', 'FORMAT_TUMOR'], inplace=True)
-    selected_fields = ['Sample', 'CHROM', 'REF', 'ALT', 'QUAL', 'FILTER', 'IMPACT', 'Feature_type',
+    selected_fields = ['Sample', 'CHROM', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Feature_type',
                        'Gene', 'SIFT', 'PolyPhen']
     return data, data[selected_fields]
 

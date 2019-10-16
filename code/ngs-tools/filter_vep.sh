@@ -15,7 +15,7 @@ module load perl/5.24.0 ensembl-vep/95.1
 filter_vep --format vcf -i $input -o $output --force_overwrite --filter "((IMPACT is HIGH) or (IMPACT is MODERATE and (SIFT match deleterious or PolyPhen match damaging)))"
 
 nvariants=$(grep -v ^# -c $vcf".vep.filter.vcf")
-echo "We get $nvariants somatic variants in the genes of interest"
+echo "We get $nvariants variants in the genes of interest"
 
 
 if [ -f *vep.vcf.gz_summary.html ]; then

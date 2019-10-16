@@ -10,7 +10,7 @@ import subprocess
 import os
 from io import StringIO
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-#import version
+import version
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -61,15 +61,18 @@ def parse_vcf(sample):
     data = data.apply(parse_format_rowwise, axis=1)
     data = parse_info(data)
     data.drop(columns=['INFO', 'FORMAT', 'FORMAT_NORMAL', 'FORMAT_TUMOR'], inplace=True)
-    return data
+    selected_fields = ['Sample', 'CHROM', 'REF', 'ALT', 'QUAL', 'FILTER', 'IMPACT', 'Feature_type',
+                       'Gene', 'SIFT', 'PolyPhen']
+    return data, data[selected_fields]
 
 
 def main(samples, outfile):
     all_data = pd.DataFrame()
     for s in samples:
-        sample_variants = parse_vcf(s)
-        all_data = pd.concat([all_data, sample_variants])
-    all_data.to_csv(outfile, sep='\t')
+        sample_variants, selected_fields_table = parse_vcf(s)
+        all_data = pd.concat([selected_fields_table, sample_variants])
+    all_data.to_csv('focused_' + outfile, sep='\t')
+    sample_variants.to_csv(outfile, sep='\t')
 
 
 
@@ -79,8 +82,8 @@ if __name__ == "__main__":
     print("# args:", parsed_args)
     print("# Summarizing variants")
     global_modules = globals()
-    #modules = version.imports(global_modules)
-    #version.print_modules(list(modules))
+    modules = version.imports(global_modules)
+    version.print_modules(list(modules))
     main(parsed_args.samples, parsed_args.outfile)
     end_time = datetime.now()
     print("# Done!")

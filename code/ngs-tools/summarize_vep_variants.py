@@ -61,9 +61,9 @@ def parse_vcf(sample):
     data = data.apply(parse_format_rowwise, axis=1)
     data = parse_info(data)
     data.drop(columns=['INFO', 'FORMAT', 'FORMAT_NORMAL', 'FORMAT_TUMOR'], inplace=True)
-    selected_fields = ['Sample', 'CHROM', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Feature_type',
-                       'Gene', 'SIFT', 'PolyPhen']
-    return data, data[selected_fields]
+    selected_fields = ['Sample', 'CHROM', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence', 'Feature_type',
+                       'Feature', 'Gene', 'SIFT', 'PolyPhen']
+    return data, data.loc[:, selected_fields]
 
 
 def main(samples, outfile):
@@ -71,7 +71,7 @@ def main(samples, outfile):
     for s in samples:
         sample_variants, selected_fields_table = parse_vcf(s)
         all_data = pd.concat([selected_fields_table, all_data], sort=True)
-    all_data.to_csv('focused_' + outfile, sep='\t')
+    all_data.to_csv(outfile.replace('.tsv', 'selected_fields.tsv'), sep='\t')
     sample_variants.to_csv(outfile, sep='\t')
 
 

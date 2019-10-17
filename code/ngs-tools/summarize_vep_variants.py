@@ -61,8 +61,6 @@ def parse_vcf(sample):
     data = data.apply(parse_format_rowwise, axis=1)
     data = parse_info(data)
     data.drop(columns=['INFO', 'FORMAT', 'FORMAT_NORMAL', 'FORMAT_TUMOR'], inplace=True)
-    selected_fields = ['Sample', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence',
-                       'Feature_type', 'SYMBOL', 'Feature', 'Gene', 'SIFT', 'PolyPhen']
     return data
 
 
@@ -74,7 +72,7 @@ def main(samples, outfile):
     all_data.index.name =  'Unique variant index'
     all_data.to_csv(outfile, sep='\t')
     selected_fields = ['Sample', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence',
-                       'Feature_type', 'Feature', 'Gene', 'SIFT', 'PolyPhen']
+                       'SYMBOL', 'Feature_type', 'Feature', 'Gene', 'SIFT', 'PolyPhen']
     all_data.reindex(columns=selected_fields).to_csv(outfile.replace('.tsv', '_selected_fields.tsv'), sep='\t')
 
 

@@ -65,12 +65,12 @@ def parse_vcf(sample):
                    'FORMAT', 'FORMAT_NORMAL']
     drop_cols = ['INFO', 'FORMAT', 'FORMAT_NORMAL']
     if TNScope:
+        print("# Assuming TNSCope VCF-file")
         header_cols.append('FORMAT_TUMOR')
         drop_cols.append('FORMAT_TUMOR')    # for later filtering
-    else:
-        data.columns = header_cols
+    data.columns = header_cols
     data['Sample'] = sample_name
-    data = data.apply(parse_format_rowwise, args=TNScope, axis=1)
+    data = data.apply(parse_format_rowwise, TNScope=TNScope, axis=1)
     data = parse_info(data)
     data.drop(columns=drop_cols, inplace=True)
     selected_fields = ['Sample', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence',

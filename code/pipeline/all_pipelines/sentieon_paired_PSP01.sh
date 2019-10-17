@@ -54,6 +54,7 @@ export SENTIEON_LICENSE=localhost:8990
 reference_dir=/home/databases/gatk-legacy-bundles/b37
 fasta=$reference_dir/human_g1k_v37_decoy.fasta
 dbsnp=$reference_dir/dbsnp_138.b37.vcf
+cosmic=$reference_dir/cosmic_v54_120711.b37.vcf
 
 # *******************************************
 #             PIPELINE
@@ -66,12 +67,16 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -r $fasta \
   --algo TNscope \
   --tumor_sample $tumor_name --normal_sample $normal_name \
   --dbsnp $dbsnp \
+  --cosmic $cosmic \
   $destination/$output_name.vcf.gz
 
 echo -e "Finished the somatic variant calling" 
 
 ## 2. Statistics on all somatic variants
 cd $destination 
+echo "Getting statistics on VCF-file ... " 
 $apps/ngs-tools/vcf_statistics.sh $output_name.vcf.gz
 
+echo "Now running downstream analysis" 
 $apps/ngs-tools/find_relevant_genes.sh $output_name.vcf.gz
+

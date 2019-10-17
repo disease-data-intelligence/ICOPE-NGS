@@ -10,7 +10,7 @@ import subprocess
 import os
 from io import StringIO
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-#import version
+import version
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -32,7 +32,7 @@ def get_args(args=None):
 
 def parse_format_rowwise(row, TNScope=False):
     fields = row['FORMAT'].split(':')
-    if TNScope > 10:
+    if TNScope:
         for field, normal, tumor in zip(fields, row['FORMAT_NORMAL'].split(':'), row['FORMAT_TUMOR'].split(':')):
             row[field + '_NORMAL'], row[field + '_TUMOR'] = normal, tumor
     else:
@@ -87,7 +87,7 @@ def main(samples, outfile):
     all_data.index.name = 'Unique variant index'
     all_data.to_csv(outfile, sep='\t')
     selected_fields = ['Sample', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence',
-                       'Feature_type', 'Feature', 'Gene', 'SIFT', 'PolyPhen']
+                       'SYMBOL', 'Feature_type', 'Feature', 'Gene', 'SIFT', 'PolyPhen']
     print("# Number of annotations before filtering:", len(all_data))
     all_data = all_data[~(all_data['IMPACT'].isin(['LOW']) | all_data['Consequence'].isin(['synonymous_variant']) |
                           all_data['SIFT'].str.startswith('tolerated') | all_data['PolyPhen'].str.startswith('benign'))]
@@ -102,8 +102,8 @@ if __name__ == "__main__":
     print("# args:", parsed_args)
     print("# Summarizing variants")
     global_modules = globals()
-    #modules = version.imports(global_modules)
-    #version.print_modules(list(modules))
+    modules = version.imports(global_modules)
+    version.print_modules(list(modules))
     main(parsed_args.samples, parsed_args.outfile)
     end_time = datetime.now()
     print("# Done!")

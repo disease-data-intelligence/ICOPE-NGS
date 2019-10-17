@@ -83,6 +83,7 @@ def main(samples, outfile):
     for s in samples:
         sample_variants = parse_vcf(s)
         all_data = pd.concat([sample_variants, all_data], sort=True)
+    print("# Number of variants", all_data.index)
     all_data.index.name = 'Unique variant index'
     all_data.to_csv(outfile, sep='\t')
     selected_fields = ['Sample', 'CHROM', 'POS', 'REF', 'ALT', 'QUAL', 'FILTER', 'ID', 'IMPACT', 'Consequence',

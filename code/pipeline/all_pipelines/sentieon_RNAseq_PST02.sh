@@ -149,11 +149,11 @@ $SENTIEON_INSTALL_DIR/bin/sentieon plot InsertSizeMetricAlgo -o is-report.pdf is
 # ******************************************
 # 2.b. CHECK-POINT FOR NUMBER OF READS
 # ******************************************
-stats=$(tail -n 2 quality_reports/aln_metrics.txt | head -n 1 | cut -f2,6)
+stats=$(tail -n 2 aln_metrics.txt | head -n 1 | cut -f2,6)
 total_reads=$(echo $stats | cut -d ' ' -f1)
 pf_reads_aligned=$(echo $stats | cut -d ' ' -f2)
-alignment_read_threshold1=20000
-alignment_read_threshold2=10000
+alignment_read_threshold1=1000
+alignment_read_threshold2=1000
 
 echo $total_reads were used in alignemnt, $pf_reads_aligned paired reads were aligned ...
 if [ $total_reads -lt $alignment_read_threshold1 ]; then
@@ -179,7 +179,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --interval 1,2,3,
 
 grep "algo: Dedup" -A 4 run.log >> read_summary.txt
 reads=$(grep "algo: Dedup" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
-deduplication_threshold=20000
+deduplication_threshold=1000
 
 echo $reads reads were used in deduplication ...
 if [ $total_reads -lt $deduplication_threshold ]; then
@@ -199,7 +199,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i deduped.bam --inte
 
 grep "algo: RNASplitReadsAtJunction" -A 4 run.log >> read_summary.txt
 reads=$(grep "algo: RNASplitReadsAtJunction" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
-splitreads_threshold=18000
+splitreads_threshold=1000
 
 echo $reads reads left after deduplication ...
 if [ $total_reads -lt $deduplication_threshold ]; then
@@ -219,7 +219,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i splitted.bam --alg
 
 grep "algo: Realigner" -A 4 run.log >> read_summary.txt
 reads=$(grep "algo: Realigner" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
-splitreads_threshold=360000
+splitreads_threshold=1000
 
 echo $reads reads after RNASplitReadsAtJunction ...
 if [ $total_reads -lt $splitreads_threshold ]; then
@@ -264,7 +264,7 @@ $apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper --trim_soft_clip --call_conf 20 --emit_conf 20 -d $dbsnp output.vcf.gz
 
-hc_variant_threshold=500
+hc_variant_threshold=-1
 nr_variants=$(zgrep -v  '#' output.vcf.gz | wc -l)
 echo $nr_variants were called with Haplotyper ...
 if [ $total_reads -lt $hc_variant_threshold ]; then
@@ -296,8 +296,9 @@ mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi
 mv run.log "$sample".run.log
 
 
-
 $apps/ngs-tools/vcf_statistics.sh "$sample".vcf.gz
+
+mv quality_reports "$sample".quality_reports
 
 # remove all the files we don't want to keep:
 rm recal* 

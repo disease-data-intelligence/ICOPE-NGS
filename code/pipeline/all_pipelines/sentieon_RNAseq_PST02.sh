@@ -73,7 +73,8 @@ mkdir -p $workdir
 logfile=$workdir/run.log
 exec > $logfile 2>&1
 echo "Copying executed script to" $workdir
-cp "$(readlink -f $0)" $workdir
+script_name=$(basename $(readlink -f $0))
+cp "$(readlink -f $0)" $workdir/"$sample".$script_name
 cd $workdir
 
 # ******************************************
@@ -109,6 +110,7 @@ echo "Continuing with alignment ... "
 # We use 'basic' two-pass mode which means that STAR will perform the 1st pass mapping, then it will automatically
 # extract junctions, insert them into the genome index, and, finally, re-map all reads in the 2nd mapping pass.
 # outSAMmapqUnique makes sure that the mapping qualities (255) for uniquely mapped reads is reset to 60 to match bwa output
+# we name output files according to the sample name as the directories should have sample naming as well
 # ******************************************
 
 STAR --genomeDir $genomeDir \
@@ -120,16 +122,17 @@ STAR --genomeDir $genomeDir \
   --quantMode GeneCounts \
   --sjdbGTFtagExonParentGene gene_name \
   --outSAMtype BAM SortedByCoordinate \
-  --outFileNamePrefix sorted"." \
+  --outFileNamePrefix "$sample".sorted"." \
   --outSAMmapqUnique 60 \
   --outSAMattrRGline ID:$RG PU:$platformUnit SM:$sample PL:$platform
 
 # ******************************************
 # 1b. Sorting
 # No index is produced by star
+# bam-file is named back to generic name because it is easier to work with
 # ******************************************
 module load tools samtools/1.9
-mv sorted.Aligned.sortedByCoord.out.bam sorted.bam
+mv "$sample".sorted.Aligned.sortedByCoord.out.bam sorted.bam
 echo "Loaded samtools 1.9 for indexing"
 samtools index sorted.bam
 
@@ -290,6 +293,9 @@ mv output.vcf.gz "$sample".vcf.gz
 mv output-TNScope.vcf.gz "$sample"-TNScope.vcf.gz
 mv output.vcf.gz.tbi "$sample".vcf.gz.tbi
 mv output-TNScope.vcf.gz.tbi "$sample"-TNScope.vcf.gz.tbi
+mv run.log "$sample".run.log
+
+
 
 $apps/ngs-tools/vcf_statistics.sh "$sample".vcf.gz
 

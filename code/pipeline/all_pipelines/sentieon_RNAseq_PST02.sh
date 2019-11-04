@@ -77,6 +77,33 @@ cp "$(readlink -f $0)" $workdir
 cd $workdir
 
 # ******************************************
+# 0a. Checking input data
+# ******************************************
+nr_lines1=$(zcat $fastq_1 | wc -l)
+nr_lines2=$(zcat $fastq_2 | wc -l)
+raw_reads1=$(echo "scale=2 ; $nr_lines1 / 4" | bc)
+raw_reads2=$(echo "scale=2 ; $nr_lines2 / 4" | bc)
+raw_read_threshold_soft=20000000
+raw_read_threshold_hard=10000000
+
+echo $raw_reads1 and $raw_reads2  ...
+if [ $raw_reads1 -lt $raw_read_threshold_soft ]; then
+    echo "Warning! The number of reads might not be sufficient ... !"
+    if [ $nr_lines1 -lt $raw_read_threshold_hard ]; then
+    echo "Number of reads is insufficient, exiting ..."
+    exit
+    fi
+fi
+if [ $raw_reads1 == $raw_reads2 ]; then
+    echo "Number of reads for each sample are equal"
+    else
+    echo "Warning: Number of reads are not equivalent, fastqc files might be corrupted"
+fi
+
+echo "Continuing with alignment ... "
+
+
+# ******************************************
 # 1a. Mapping with STAR and sorting
 # Sorting happens by coordinate
 # We use 'basic' two-pass mode which means that STAR will perform the 1st pass mapping, then it will automatically
@@ -117,20 +144,68 @@ $SENTIEON_INSTALL_DIR/bin/sentieon plot MeanQualityByCycle -o mq-report.pdf mq_m
 $SENTIEON_INSTALL_DIR/bin/sentieon plot InsertSizeMetricAlgo -o is-report.pdf is_metrics.txt
 
 # ******************************************
+# 2.b. CHECK-POINT FOR NUMBER OF READS
+# ******************************************
+stats=$(tail -n 2 quality_reports/aln_metrics.txt | head -n 1 | cut -f2,6)
+total_reads=$(echo $stats | cut -d ' ' -f1)
+pf_reads_aligned=$(echo $stats | cut -d ' ' -f2)
+alignment_read_threshold1=20000
+alignment_read_threshold2=10000
+
+echo $total_reads were used in alignemnt, $pf_reads_aligned paired reads were aligned ...
+if [ $total_reads -lt $alignment_read_threshold1 ]; then
+    echo "Not enough reads, exiting ... "
+    exit
+else
+    if [ $pf_reads_aligned -lt $alignment_read_threshold2 ]; then
+        echo "Not enough aligned reads, exiting ... "
+        exit
+        fi
+echo "Sufficient paired reads aligned!"
+fi
+echo "Passed test succesfully!"
+
+
+
+# ******************************************
 # 3. Remove Duplicate Reads
 # To mark duplicate reads only without removing them, remove "--rmdup" in the second command
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --algo LocusCollector --fun score_info score.txt
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y --algo Dedup --rmdup --score_info score.txt --metrics dedup_metrics.txt deduped.bam
 
+grep "algo: Dedup" -A 4 run.log >> read_summary.txt
+reads=$(grep "algo: Dedup" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
+deduplication_threshold=20000
+
+echo $reads reads were used in deduplication ...
+if [ $total_reads -lt $deduplication_threshold ]; then
+    echo "Not enough reads, exiting ... "
+    exit
+fi
+echo "Passed test succesfully!"
+
 
 # ******************************************
 # 4. Split reads at junction
 # This step splits the RNA reads into exon segments by getting rid of Ns while maintaining grouping information, and hard-clips any sequences overhanging into the intron regions.
 # Additionally, the step will reassign the mapping qualities from STAR to be consistent with what is expected in subsequent steps by converting from quality 255 to 60.
-# ^ this is not really necessary (this is from the website / manual)
+# second thing is not really necessary (this is from the website / manual), but we keep it to be sure it is done properly
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i deduped.bam --interval 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y --algo RNASplitReadsAtJunction --reassign_mapq 255:60 splitted.bam
+
+grep "algo: RNASplitReadsAtJunction" -A 4 run.log >> read_summary.txt
+reads=$(grep "algo: RNASplitReadsAtJunction" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
+splitreads_threshold=18000
+
+echo $reads reads left after deduplication ...
+if [ $total_reads -lt $deduplication_threshold ]; then
+    echo "Not enough reads, exiting ... "
+    exit
+fi
+echo "Passed test succesfully!"
+
+
 
 # ******************************************
 # 5. Indel realigner
@@ -138,6 +213,18 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i deduped.bam --inte
 # but necessary for any pile-up based caller.
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i splitted.bam --algo Realigner -k $known_Mills_indels -k $known_1000G_indels realigned.bam
+
+grep "algo: Realigner" -A 4 run.log >> read_summary.txt
+reads=$(grep "algo: Realigner" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
+splitreads_threshold=360000
+
+echo $reads reads after RNASplitReadsAtJunction ...
+if [ $total_reads -lt $splitreads_threshold ]; then
+    echo "Not enough reads, exiting ... "
+    exit
+fi
+echo "Passed test succesfully!"
+
 
 # ******************************************
 # 6. Base recalibration
@@ -163,6 +250,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q r
 mv recaled.bam "$sample".bam
 mv recaled.bam.bai "$sample".bam.bai
 
+
 $apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --hours 15 -n "$sample"_bam_statistics -np 2 --no-numbering
 
 
@@ -173,13 +261,22 @@ $apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper --trim_soft_clip --call_conf 20 --emit_conf 20 -d $dbsnp output.vcf.gz
 
+hc_variant_threshold=500
+nr_variants=$(zgrep -v  '#' output.vcf.gz | wc -l)
+echo $nr_variants were called with Haplotyper ...
+if [ $total_reads -lt $hc_variant_threshold ]; then
+    echo "Not enough variants (less than $hc_variant_threshold) were called!"
+    echo "Assuming an error happened, and exiting ... "
+    exit
+fi
+echo "Passed test succesfully!"
+
 
 # ******************************************
 # 6b. Variant calling with TNscope without normal sample
 # Here we could include a 'panel of normals' --pon (VCF-file) which should substitute the normal sample
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo TNscope --tumor_sample $sample -d $dbsnp --trim_soft_clip output-TNScope.vcf.gz
-
 
 # ******************************************
 # 7. Clean-up and VCF-stats submission

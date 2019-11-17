@@ -30,8 +30,8 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 echo "# Collecting VCF stats for" $1 
 bcftools stats $vcf > $destination/"$opt"vcf_summary.txt
 grep ^SN -B 1 $destination/"$opt"vcf_summary.txt > $destination/"$opt"SN_stats.txt
-grep ^QUAL -B 1 $destinatio/"$opt"vcf_summary.txt > $destination/"$opt"QUAL_vcf_stats.txt
-grep ^DP -B 1 $destinatio/"$opt"vcf_summary.txt > $destination/"$opt"DP_vcf_stats.txt
+grep ^QUAL -B 1 $destination/"$opt"vcf_summary.txt > $destination/"$opt"QUAL_vcf_stats.txt
+grep ^DP -B 1 $destination/"$opt"vcf_summary.txt > $destination/"$opt"DP_vcf_stats.txt
 echo "# Summarizing and plotting with visualize_stats.py" 
 $apps/quality/visualize_stats.py qual $destination/"$opt"QUAL_vcf_stats.txt
 $apps/quality/visualize_stats.py dp $destination/"$opt"DP_vcf_stats.txt

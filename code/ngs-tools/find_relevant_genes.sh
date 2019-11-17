@@ -17,8 +17,8 @@ sample=$(basename $input | sed 's/.vcf.*//')
 echo -e "Input \t Sample-name"
 echo -e "$input \t $sample"
 
-mkdir analysis_of_relevant_genes
-cd analysis_of_relevant_genes
+mkdir "$sample".analysis_of_relevant_genes
+cd "$sample".analysis_of_relevant_genes
 
 # subset list of variants with our gene list (bed-file)
 module load vcftools/0.1.16

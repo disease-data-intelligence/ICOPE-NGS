@@ -14,6 +14,7 @@ def read_input(filename):
     data = pd.read_csv(filename, sep='\t')
     data.columns = ['chromosome', 'start', 'end', 'gene', 'exon', 'strand', 'coverage']
     data.drop(columns=['strand'], inplace=True)
+
     return data
 
 

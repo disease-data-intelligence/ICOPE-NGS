@@ -52,12 +52,12 @@ def find_pairs(samples, germline_pipeline, tumor_pipeline, paired_pipeline):
             if r.endswith('.'+tumor_pipeline):
                 tumor_name = r.split('/')[-1]
                 tumor = r + '/' + [x for x in f if (x.endswith('.bam') and x.startswith(tumor_name))][0]
+                print("# Found tumor file", tumor)
+            if sum(map(lambda x: isinstance(x, str), (tumor, germline))) == 2:
                 mrd = tumor_name.split('_')[0]
                 dest_filename = mrd + '-' + tumor_name.split('_')[1] + '-' + germline_name.split('_')[1] + '-' + paired_pipeline
-                dest = '/'.join(r.split('/')[:-1]) + '/' + dest_filename 
-                print("# Found tumor file", tumor)
+                dest = '/'.join(r.split('/')[:-1]) + '/' + dest_filename
                 print("# Defining destination for somatic variants:", dest)
-            if sum(map(lambda x: isinstance(x, str), (tumor, germline, dest))) == 3:
                 yield (tumor, germline, dest)
                 break 
 

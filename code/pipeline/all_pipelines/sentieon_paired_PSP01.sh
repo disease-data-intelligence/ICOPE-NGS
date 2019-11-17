@@ -43,7 +43,7 @@ echo -e "# $output_name \t $destination "
 echo "# Number of threads:" $nt
 echo "# Reference version: b37"
 
-mkdir $destination 
+mkdir -p $destination
 
 # Update with the location of the Sentieon software package
 module load cbspythontools/1.0

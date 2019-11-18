@@ -18,6 +18,18 @@ else
     opt=$2"_";
 fi
 
+variant_threshold=0
+nr_variants=$(zgrep -v  '#' $vcf | wc -l)
+echo Checking number of variants: $nr_variants input variants
+if [ $total_reads -lt $variant_threshold ]; then
+    echo "Not enough variants (less than $variant_threshold) were called!"
+    echo "Assuming an error happened, exiting ... "
+    exit
+fi
+echo "Continuing with vcf statistics!"
+
+
+
 start=`date +%s`
 
 echo "# Creating quality_reports dir if it does not already exist"

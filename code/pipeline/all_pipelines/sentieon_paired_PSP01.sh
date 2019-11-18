@@ -72,6 +72,16 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -r $fasta \
 
 echo -e "Finished the somatic variant calling" 
 
+variant_threshold=0
+nr_variants=$(zgrep -v  '#' $destination/$output_name.vcf.gz | wc -l)
+echo Checking number of variants: $nr_variants input variants
+if [ $total_reads -lt $variant_threshold ]; then
+    echo "Not enough variants (less than $variant_threshold) were called!"
+    echo "Assuming an error happened, exiting ... "
+    exit
+fi
+echo "Number of variants is suffient, continuing the pipeline"
+
 ## 2. Statistics on all somatic variants
 cd $destination 
 echo "Getting statistics on VCF-file ... " 

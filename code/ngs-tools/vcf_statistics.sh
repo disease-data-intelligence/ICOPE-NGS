@@ -18,10 +18,10 @@ else
     opt=$2"_";
 fi
 
-variant_threshold=0
+variant_threshold=1
 nr_variants=$(zgrep -v  '#' $vcf | wc -l)
 echo Checking number of variants: $nr_variants input variants
-if [ $total_reads -lt $variant_threshold ]; then
+if [ $nr_variants -lt $variant_threshold ]; then
     echo "Not enough variants (less than $variant_threshold) were called!"
     echo "Assuming an error happened, exiting ... "
     exit

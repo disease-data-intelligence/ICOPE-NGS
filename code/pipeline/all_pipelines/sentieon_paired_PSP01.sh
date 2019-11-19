@@ -75,7 +75,7 @@ echo -e "Finished the somatic variant calling"
 variant_threshold=0
 nr_variants=$(zgrep -v  '#' $destination/$output_name.vcf.gz | wc -l)
 echo Checking number of variants: $nr_variants input variants
-if [ $total_reads -lt $variant_threshold ]; then
+if [ "$nr_variants" -lt $variant_threshold ]; then
     echo "Not enough variants (less than $variant_threshold) were called!"
     echo "Assuming an error happened, exiting ... "
     exit
@@ -89,4 +89,5 @@ $apps/ngs-tools/vcf_statistics.sh $output_name.vcf.gz
 
 echo "Now running downstream analysis" 
 $apps/ngs-tools/find_relevant_genes.sh $output_name.vcf.gz
+
 

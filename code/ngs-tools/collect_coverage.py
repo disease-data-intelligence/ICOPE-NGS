@@ -13,9 +13,10 @@ sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
 import version
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/computerome")
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/quality")
-
-from somatic_setup import find_pairs
-from gene_coverage import calculate_statistics
+# imports from own repo's
+from utilities.version import print_modules, imports
+from computerome.somatic_setup import find_pairs
+from quality.gene_coverage import calculate_statistics
 
 
 def get_parser():
@@ -98,8 +99,8 @@ if __name__ == "__main__":
     print("# args:", args)
     print("# Submitting paired jobs")
     global_modules = globals()
-    modules = version.imports(global_modules)
-    version.print_modules(list(modules))
+    modules = imports(global_modules)
+    print_modules(list(modules))
     main(args.samples, args.PSG_version, args.PST_version, args.PSP_version,
          args.destination, args.bed, args.panel)
     end_time = datetime.now()

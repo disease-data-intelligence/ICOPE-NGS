@@ -8,10 +8,8 @@ import sys
 import pdb
 import matplotlib 
 matplotlib.use('Agg')
-
-#sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-import version
-
+# import from own repos 
+from utilities.version import print_modules, imports
 
 def plot_qual(filename):
     qual = pd.read_csv(filename, sep='\t')
@@ -73,11 +71,9 @@ if __name__ == '__main__':
     be used for making an excel-file containing information on several VCF-files"""
     function = sys.argv[1].lower()
     filename = sys.argv[2:]  # may be a list of files
-
     global_modules = globals()
-    modules = version.imports(global_modules)
-    version.print_modules(list(modules)) 
-
+    modules = imports(global_modules)
+    print_modules(list(modules))
     print("Input args: \n",
           "function:", function, "\n",
           "filename:", filename)

@@ -74,19 +74,19 @@ def run_samtools(bam, bed):
 def calculate_coverage_stats(data, panel):
     data['mean_cov'] = data['coverage'] / (data['end'] - data['start'])
     data['exons_above20x_frac'] = data['mean_cov'].apply(lambda x: int(x > 20.0))
-    low_coverage_exons = data[data['mean_cov'].apply(lambda x: int(x < 20.0))]
     coverage_chromosomes = data.groupby('chromosome').mean()
     # filter gene coverage data
-    data = data[data['gene'].isin(panel)]
-    coverage_genes = data.groupby('gene').mean()
+    data_interest = data[data['gene'].isin(panel)]
+    coverage_genes = data_interest.groupby('gene').mean()
+    low_coverage_exons = data_interest[data_interest['mean_cov'] < 20.0]
     return coverage_genes.loc[:, ['mean_cov', 'exons_above20x_frac']], low_coverage_exons, \
            coverage_chromosomes.loc[:, ['mean_cov', 'exons_above20x_frac']]
 
 
 def process_pair(germline, tumor, bed, destination, panel):
-    germline_coverage_genes, germline_coverage_chrom, germline_low_cov_exons =\
+    germline_coverage_genes, germline_low_cov_exons, germline_coverage_chrom =\
         calculate_coverage_stats(run_samtools(germline, bed), panel)
-    tumor_coverage_genes, tumor_coverage_chrom, tumor_low_cov_exons = \
+    tumor_coverage_genes, tumor_low_cov_exons, tumor_coverage_chrom = \
         calculate_coverage_stats(run_samtools(tumor, bed), panel)
     # sample_name = germline.split('.bam')[0]
     merge = pd.merge(tumor_coverage_genes, germline_coverage_genes,

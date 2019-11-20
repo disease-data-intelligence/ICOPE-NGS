@@ -10,8 +10,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-import version
+from utils_py.version import print_modules, imports
 
 def read_input(filename):
     data = pd.read_csv(filename, sep='\t')
@@ -52,8 +51,8 @@ def plot_distribution(genes, name, plots=4, sort='value'):
 if __name__ == '__main__':
     print("# Running gene coverage function")
     global_modules = globals()
-    modules = version.imports(global_modules)
-    version.print_modules(list(modules))
+    modules = imports(global_modules)
+    print_modules(list(modules))
     filename = sys.argv[1]
     gene_file = sys.argv[2]
     gene_panel = list(pd.read_csv(gene_file).values.flatten())

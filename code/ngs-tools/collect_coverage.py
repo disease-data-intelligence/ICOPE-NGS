@@ -14,7 +14,7 @@ sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/computerome")
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/quality")
 # imports from own repo's
-from utilities.version import print_modules, imports
+from utils_py.version import print_modules, imports
 from computerome.somatic_setup import find_pairs
 from quality.gene_coverage import calculate_statistics
 

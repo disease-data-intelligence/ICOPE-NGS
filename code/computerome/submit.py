@@ -6,6 +6,7 @@ import argparse
 import re
 from pathlib import Path
 
+
 def get_args(args=None):
     """
     Parse command line arguments to a namespace with values. 

@@ -7,7 +7,7 @@ import re
 import matplotlib.pyplot as plt
 import pdb
 import numpy as np
-from utilities.version import print_modules, imports
+from utils_py.version import print_modules, imports
 
 def read_input(filename):
     data = pd.read_csv(filename, sep='\t')

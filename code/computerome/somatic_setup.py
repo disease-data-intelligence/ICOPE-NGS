@@ -5,8 +5,7 @@ import sys
 import time
 import argparse
 import subprocess
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-#import version
+from utils_py.version import print_modules, imports
 from datetime import datetime
 
 
@@ -92,8 +91,8 @@ if __name__ == "__main__":
     print("# args:", parsed_args)
     print("# Submitting paired jobs")
     global_modules = globals()
-    modules = version.imports(global_modules)
-    version.print_modules(list(modules))
+    modules = imports(global_modules)
+    print_modules(list(modules))
     main(parsed_args.samples, parsed_args.PSG_version, parsed_args.PST_version, parsed_args.PSP_version)
     end_time = datetime.now()
     print("# Done!")

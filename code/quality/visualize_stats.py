@@ -8,9 +8,7 @@ import sys
 import pdb
 import matplotlib 
 matplotlib.use('Agg')
-
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-from utilities.version import print_modules, imports
+from utils_py.version import print_modules, imports
 
 
 def plot_qual(filename):

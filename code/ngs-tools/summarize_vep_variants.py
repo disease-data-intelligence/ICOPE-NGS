@@ -9,8 +9,7 @@ import sys
 import subprocess
 import os
 from io import StringIO
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-#import version
+from utils_py.version import print_modules, imports
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -107,9 +106,9 @@ if __name__ == "__main__":
     parsed_args = get_args()
     print("# args:", parsed_args)
     print("# Summarizing variants")
-    #global_modules = globals()
-    #modules = version.imports(global_modules)
-    #version.print_modules(list(modules))
+    global_modules = globals()
+    modules = imports(global_modules)
+    print_modules(list(modules))
     main(parsed_args.samples, parsed_args.outfile)
     end_time = datetime.now()
     print("# Done!")

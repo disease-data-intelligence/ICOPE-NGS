@@ -7,11 +7,8 @@ import numpy as np
 import pdb
 import matplotlib
 matplotlib.use('Agg')
-
 import matplotlib.pyplot as plt 
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-import version
-import pprinting
+from utils_py.version import print_modules, imports
 
 def main(filename, input_upper_limit):
     cov = pd.read_csv(filename, sep='\t')
@@ -54,8 +51,8 @@ def main(filename, input_upper_limit):
 if __name__ == '__main__':
     print("# Running coverage pr. chromosome function") 
     global_modules = globals()
-    modules = version.imports(global_modules)
-    version.print_modules(list(modules))
+    modules = imports(global_modules)
+    print_modules(list(modules))
     filename = sys.argv[1]
     input_upper_limit = int(sys.argv[2])
     print("# input:", filename)

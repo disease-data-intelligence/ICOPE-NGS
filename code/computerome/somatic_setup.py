@@ -38,6 +38,16 @@ def get_args(args=None):
 
 
 def find_pairs(samples, germline_pipeline, tumor_pipeline, paired_pipeline):
+    """
+    Function for finding paired germline and tumor sample bam-files.
+    yields pairs so that you can use it as an iterator.
+    :param samples: foldername for walk start, str
+    :param germline_pipeline: int
+    :param tumor_pipeline: int
+    :param paired_pipeline: int
+    :return: path for tumor bam, germline bam and destination for somatic variants if used in concert with calling
+    the somatic pipeline
+    """
     for s in samples:
         print("# Finding files for sample", s)
         tumor, germline, dest = (None, None, None)
@@ -57,7 +67,6 @@ def find_pairs(samples, germline_pipeline, tumor_pipeline, paired_pipeline):
             mrd = tumor_name.split('_')[0]
             dest_filename = mrd + '-' + tumor_name.split('_')[1] + '-' + germline_name.split('_')[1] + '-' + paired_pipeline
             dest =  tumor_path + '/' + dest_filename
-            print("# Defining destination for somatic variants:", dest)
             yield (tumor, germline, dest)
         else:
             if not tumor:
@@ -70,6 +79,7 @@ def find_pairs(samples, germline_pipeline, tumor_pipeline, paired_pipeline):
 
 def submit_pair(tumor, germline, dest):
     # write qsub with paired
+    print("# Defining destination for somatic variants:", dest)
     apps='/home/projects/HT2_leukngs/apps/github/code'
     jobname = dest
     submit_string = "{a}/computerome/submit.py".format(a=apps)

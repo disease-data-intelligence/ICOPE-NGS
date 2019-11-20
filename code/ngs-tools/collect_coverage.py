@@ -71,8 +71,11 @@ def run_samtools(bam, bed):
 def calculate_coverage_stats(data, panel):
     data['mean_cov'] = data['coverage'] / (data['end'] - data['start'])
     data['exons_above20x_frac'] = data['mean_cov'].apply(lambda x: int(x > 20.0))
+    low_coverage_exons = data[data['mean_cov'].apply(lambda x: int(x < 20.0))]
+
     data = data[data['gene'].isin(panel)]
     coverage = data.groupby('gene').mean()
+
     return coverage.loc[:, ['mean_cov', 'exons_above20x_frac']]
 
 

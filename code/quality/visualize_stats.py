@@ -8,8 +8,8 @@ import sys
 import pdb
 import matplotlib 
 matplotlib.use('Agg')
+# import from own repos
 from utils_py.version import print_modules, imports
-
 
 def plot_qual(filename):
     qual = pd.read_csv(filename, sep='\t')
@@ -27,7 +27,9 @@ def plot_qual(filename):
         ax.set_xlabel('Quality score')
         plt.setp(ax.patches, linewidth=0)
         plt.tight_layout()
-        plt.savefig(filename.split('.')[0]+pretty_names[col]+'.pdf', dpi=150)
+        plot_name = filename.replace('txt', '')+pretty_names[col]+'.pdf'
+        plt.savefig(plot_name, dpi=150)
+        print(f"Saved plot to {plot_name}")
 
 
 def plot_dp(filename):
@@ -46,7 +48,9 @@ def plot_dp(filename):
         ax.set_xlabel('Depth')
         plt.setp(ax.patches, linewidth=0)
         plt.tight_layout()
-        plt.savefig(filename.split('.')[0]+pretty_names[col].replace(' ', '_') +'.pdf', dpi=150)
+        plot_name=filename.replace('txt', '')+pretty_names[col].replace(' ', '_') +'.pdf'
+        plt.savefig(plot_name, dpi=150)
+        print(f"Saved plot to {plot_name}")
 
 
 def summarize_sn(filename):
@@ -56,7 +60,9 @@ def summarize_sn(filename):
         sn = pd.read_csv(file, sep='\t', index_col='[3]key').drop(columns=['# SN', '[2]id'])
         sn.columns = [file.split('.')[0]]
         sn_all = pd.concat([sn_all, sn], axis=1)
-    sn_all.to_excel(filename[0].split('-')[0]+'.xlsx')
+    file_name = filename[0].split('-')[0]+'.xlsx'
+    sn_all.to_excel(file_name)
+    print(f"Saved excel to {filename}")
 
 
 
@@ -65,11 +71,9 @@ if __name__ == '__main__':
     be used for making an excel-file containing information on several VCF-files"""
     function = sys.argv[1].lower()
     filename = sys.argv[2:]  # may be a list of files
-
     global_modules = globals()
     modules = imports(global_modules)
     print_modules(list(modules))
-
     print("Input args: \n",
           "function:", function, "\n",
           "filename:", filename)

@@ -9,7 +9,7 @@ import pdb
 import matplotlib 
 matplotlib.use('Agg')
 
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
+#sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
 import version
 
 
@@ -29,7 +29,9 @@ def plot_qual(filename):
         ax.set_xlabel('Quality score')
         plt.setp(ax.patches, linewidth=0)
         plt.tight_layout()
-        plt.savefig(filename.split('.')[0]+pretty_names[col]+'.pdf', dpi=150)
+        plot_name = filename.replace('txt', '')+pretty_names[col]+'.pdf'
+        plt.savefig(plot_name, dpi=150)
+        print(f"Saved plot to {plot_name}")
 
 
 def plot_dp(filename):
@@ -48,7 +50,9 @@ def plot_dp(filename):
         ax.set_xlabel('Depth')
         plt.setp(ax.patches, linewidth=0)
         plt.tight_layout()
-        plt.savefig(filename.split('.')[0]+pretty_names[col].replace(' ', '_') +'.pdf', dpi=150)
+        plot_name=filename.replace('txt', '')+pretty_names[col].replace(' ', '_') +'.pdf'
+        plt.savefig(plot_name, dpi=150)
+        print(f"Saved plot to {plot_name}")
 
 
 def summarize_sn(filename):
@@ -58,7 +62,9 @@ def summarize_sn(filename):
         sn = pd.read_csv(file, sep='\t', index_col='[3]key').drop(columns=['# SN', '[2]id'])
         sn.columns = [file.split('.')[0]]
         sn_all = pd.concat([sn_all, sn], axis=1)
-    sn_all.to_excel(filename[0].split('-')[0]+'.xlsx')
+    file_name = filename[0].split('-')[0]+'.xlsx'
+    sn_all.to_excel(file_name)
+    print(f"Saved excel to {filename}")
 
 
 

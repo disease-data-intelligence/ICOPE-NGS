@@ -10,7 +10,7 @@ import subprocess
 import os
 from io import StringIO
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-#import version
+import version
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/computerome")
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/quality")
 

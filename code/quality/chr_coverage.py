@@ -16,10 +16,12 @@ from utils_py.version import print_modules, imports
 from utils_py.pprinting import print_overwrite
 
 
-
 def run_genome_cov(bam):
     print("# Input is a bam-file, we have to run genomecov ... ")
-    input = subprocess.Popen(["bedtools", "genomecov", "-ibam", bam, "-max", "150"], stdout=subprocess.PIPE)
+    try:
+        input = subprocess.Popen(["bedtools", "genomecov", "-ibam", bam, "-max", "150"], stdout=subprocess.PIPE)
+    except OSError as e:
+        print("# Could not run bedtools or find bam, try to use: module load bedtools/2.28.0 and check path")
     decoding = StringIO(input.communicate()[0].decode('utf-8'))
     cov = pd.read_csv(decoding, sep='\t', header=None)
     cov.columns = ['chr', 'cov', 'obs_bases', 'total', 'frac']
@@ -79,7 +81,6 @@ def main(filename, input_upper_limit):
         cov = read_coverage_file(filename)
     mean_coverage = plot_collect_coverage(cov, input_upper_limit)
     mean_coverage.to_csv(filename.replace('cov', 'tsv'), sep='\t')
-    return
 
 
 if __name__ == '__main__':
@@ -88,8 +89,11 @@ if __name__ == '__main__':
     modules = imports(global_modules)
     print_modules(list(modules))
     filename = sys.argv[1]
-    input_upper_limit = int(sys.argv[2])
-    print("# input:", filename)
+    try:
+        input_upper_limit = int(sys.argv[2])
+    except IndexError:
+        input_upper_limit = 150
+    print(f"# Input: {filename} \t  Upper limit: {input_upper_limit}")
     main(filename, input_upper_limit)
     print("# Done!")
 

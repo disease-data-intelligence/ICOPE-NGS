@@ -39,7 +39,7 @@ def get_parser():
                         default='/home/projects/HT2_leukngs/data/references/general/300_genes_of_interest.txt',
                         help="(Default: /home/projects/HT2_leukngs/data/references/general/300_genes_of_interest.txt)")
     parser.add_argument('-bed', '--bedfile', type=str, dest='bed',
-                        default="/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed",
+                        default="/home/projects/HT2_leukngs/data/references/hg37/test.bed",
                         help="Bed-file with intervals to look at. "
                              "(Default: /home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed)")
     parser.add_argument('-destination', dest='destination')
@@ -60,7 +60,10 @@ def get_args(args=None):
 def run_samtools(bam, bed):
     assert os.path.exists(bam), "does not exist"
     assert os.path.exists(bed), "does not exist"
-    input = subprocess.Popen(["samtools", "bedcov", bed, bam], stdout=subprocess.PIPE)
+    try:
+        input = subprocess.Popen(["samtools", "bedcov", bed, bam], stdout=subprocess.PIPE)
+    except OSError as e:
+        print("# Could not run samtools, try to use: module load samtools/1.9 and/or check path")
     decoding = StringIO(input.communicate()[0].decode('utf-8'))
     data = pd.read_csv(decoding, sep='\t', header=None)
     data.columns = ['chromosome', 'start', 'end', 'gene', 'exon', 'strand', 'coverage']
@@ -72,16 +75,19 @@ def calculate_coverage_stats(data, panel):
     data['mean_cov'] = data['coverage'] / (data['end'] - data['start'])
     data['exons_above20x_frac'] = data['mean_cov'].apply(lambda x: int(x > 20.0))
     low_coverage_exons = data[data['mean_cov'].apply(lambda x: int(x < 20.0))]
-
+    coverage_chromosomes = data.groupby('chromosome').mean()
+    # filter gene coverage data
     data = data[data['gene'].isin(panel)]
-    coverage = data.groupby('gene').mean()
-
-    return coverage.loc[:, ['mean_cov', 'exons_above20x_frac']]
+    coverage_genes = data.groupby('gene').mean()
+    return coverage_genes.loc[:, ['mean_cov', 'exons_above20x_frac']], low_coverage_exons, \
+           coverage_chromosomes.loc[:, ['mean_cov', 'exons_above20x_frac']]
 
 
 def process_pair(germline, tumor, bed, destination, panel):
-    germline_coverage_genes = calculate_coverage_stats(run_samtools(germline, bed), panel)
-    tumor_coverage_genes = calculate_coverage_stats(run_samtools(tumor, bed), panel)
+    germline_coverage_genes, germline_coverage_chrom, germline_low_cov_exons =\
+        calculate_coverage_stats(run_samtools(germline, bed), panel)
+    tumor_coverage_genes, tumor_coverage_chrom, tumor_low_cov_exons = \
+        calculate_coverage_stats(run_samtools(tumor, bed), panel)
     # sample_name = germline.split('.bam')[0]
     merge = pd.merge(tumor_coverage_genes, germline_coverage_genes,
                      left_index=True, right_index=True, suffixes=('_germline', '_tumor'))

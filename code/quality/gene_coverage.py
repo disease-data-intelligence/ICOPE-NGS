@@ -57,7 +57,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
     gene_file = sys.argv[2]
     gene_panel = list(pd.read_csv(gene_file).values.flatten())
-    print("# plotting, ", filename)
+    print("# plotting data from", filename)
     data = read_input(filename)
     genes = calculate_statistics(data, panel=gene_panel)
     print("# Number of unique genes plotted:", len(genes['gene'].unique()))

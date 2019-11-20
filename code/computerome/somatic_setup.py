@@ -6,7 +6,7 @@ import time
 import argparse
 import subprocess
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-import version
+#import version
 from datetime import datetime
 
 

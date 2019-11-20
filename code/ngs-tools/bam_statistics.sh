@@ -15,14 +15,21 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 destination="$sample".quality_reports
 mkdir -p $destination
 
-echo "# Getting coverage statistics"
-bed=/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.filtered.bed
-genepanel=/home/projects/HT2_leukngs/data/references/general/genepanel.txt
+echo "# Getting coverage statistics for $sample in $destination"
+bed=/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed
+genepanel=/home/projects/HT2_leukngs/data/references/general/300_genes_of_interest.txt
+
 
 samtools bedcov $bed $bam >  $destination/cov.canonical.exons.bed
 echo "# Summarizing exon and gene coverage"
-$apps/quality/exon_coverage.py  $destination/cov.canonical.exons.bed $genepanel
-$apps/quality/gene_coverage.py  $destination/cov.canonical.exons.bed $genepanel
+$apps/quality/exon_coverage.py $destination/cov.canonical.exons.bed $genepanel
+$apps/quality/gene_coverage.py $destination/cov.canonical.exons.bed $genepanel
+
+intronbed=/home/projects/HT2_leukngs/data/references/hg37/UCSC_introns_hg37.bed
+exonbed=/home/projects/HT2_leukngs/data/references/hg37/UCSC_exons_hg37.bed
+
+samtools bedcov $intronbed $bam > $destination/introns.bed
+
 
 echo "# Getting coverage pr. chromosome"
 bedtools genomecov -ibam $bam -max 150 >  $destination/genome.cov

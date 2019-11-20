@@ -10,7 +10,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-import version
+from utilities.version import print_modules, imports
 
 
 def plot_qual(filename):
@@ -69,8 +69,8 @@ if __name__ == '__main__':
     filename = sys.argv[2:]  # may be a list of files
 
     global_modules = globals()
-    modules = version.imports(global_modules)
-    version.print_modules(list(modules)) 
+    modules = imports(global_modules)
+    print_modules(list(modules))
 
     print("Input args: \n",
           "function:", function, "\n",

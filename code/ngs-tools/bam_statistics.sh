@@ -17,7 +17,7 @@ mkdir -p $destination
 
 echo "# Getting coverage statistics for $sample in $destination"
 bed=/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed
-genepanel=/home/projects/HT2_leukngs/data/references/general/300_genes_of_interest.txt
+genepanel=/home/projects/HT2_leukngs/data/references/general/315_genes_of_interest.txt
 
 
 samtools bedcov $bed $bam >  $destination/cov.canonical.exons.bed

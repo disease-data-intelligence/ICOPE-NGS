@@ -40,7 +40,7 @@ apps="/home/projects/HT2_leukngs/apps/github/code"
 # VCF statistics
 echo "# Collecting VCF stats for" $1 
 bcftools stats $vcf > $destination/"$opt"vcf_summary.txt
-$apps/quality/visualize_stats.py $destination/"$opt"vcf_stats.txt
+$apps/quality/visualize_vcf_stats.py $destination/"$opt"vcf_summary.txt
 
 # clean up
 echo "# Moving files to quality_reports dir" 

@@ -12,6 +12,7 @@ module load anaconda3/4.4.0
 # anaconda has a samtools module which can interfere with the computerome version, thus we
 # have to load it here to avoid conflict 
 module load samtools/1.9
+module load bedtools/2.28.0
 
 # make sure that we have access to python scripts
 iapps='/home/projects/HT2_leukngs/apps/github/code'

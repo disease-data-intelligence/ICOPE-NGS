@@ -91,3 +91,4 @@ echo "Now running downstream analysis"
 $apps/ngs-tools/find_relevant_genes.sh $output_name.vcf.gz
 
 
+

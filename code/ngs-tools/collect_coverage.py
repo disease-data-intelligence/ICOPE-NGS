@@ -105,7 +105,6 @@ if __name__ == "__main__":
     start_time = datetime.now()
     args = get_args()
     print("# args:", args)
-    print("# Submitting paired jobs")
     global_modules = globals()
     modules = imports(global_modules)
     print_modules(list(modules))

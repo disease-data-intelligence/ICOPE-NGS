@@ -30,9 +30,10 @@ echo "Continuing with vcf statistics!"
 
 start=`date +%s`
 
-echo "# Creating quality_reports dir if it does not already exist"
 destination="$sample".quality_reports
 mkdir -p $destination
+echo "# Creating folder $destination if it does not already exist"
+
 
 apps="/home/projects/HT2_leukngs/apps/github/code"
 

@@ -9,10 +9,6 @@ import sys
 import subprocess
 import os
 from io import StringIO
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/utilities")
-import version
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/computerome")
-sys.path.append("/home/projects/HT2_leukngs/apps/github/code/quality")
 # imports from own repo's
 from utils_py.version import print_modules, imports
 from computerome.somatic_setup import find_pairs
@@ -58,12 +54,14 @@ def get_args(args=None):
 
 
 def run_samtools(bam, bed):
+    print("# Running samtools for collecting coverage stats")
     assert os.path.exists(bam), "does not exist"
     assert os.path.exists(bed), "does not exist"
     try:
         input = subprocess.Popen(["samtools", "bedcov", bed, bam], stdout=subprocess.PIPE)
     except OSError as e:
         print("# Could not run samtools, try to use: module load samtools/1.9 and/or check path")
+    print("# Decoding bedcov output ... ") 
     decoding = StringIO(input.communicate()[0].decode('utf-8'))
     data = pd.read_csv(decoding, sep='\t', header=None)
     data.columns = ['chromosome', 'start', 'end', 'gene', 'exon', 'strand', 'coverage']
@@ -72,6 +70,7 @@ def run_samtools(bam, bed):
 
 
 def calculate_coverage_stats(data, panel):
+    print("# Calculating coverage stats ... ") 
     data['mean_cov'] = data['coverage'] / (data['end'] - data['start'])
     data['exons_above20x_frac'] = data['mean_cov'].apply(lambda x: int(x > 20.0))
     coverage_chromosomes = data.groupby('chromosome').mean()

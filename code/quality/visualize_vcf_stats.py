@@ -75,7 +75,7 @@ if __name__ == '__main__':
     modules = imports(global_modules)
     print_modules(list(modules))
     print("# Gettings stats for", filename)
-    fig, axes = plt.subplots(3, figsize=(10,15))
+    fig, axes = plt.subplots(3, figsize=(8,15))
     fields_fun = [summarize_sn, plot_qual, plot_dp]
     fields_args = [filename, axes[1:], axes[0]]
     field_names = ['SN', 'QUAL', 'DP']

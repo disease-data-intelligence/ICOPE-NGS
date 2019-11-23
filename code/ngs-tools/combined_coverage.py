@@ -66,16 +66,16 @@ def calculate_coverage_stats(data, panel):
 
 
 def main(bam, bed, panel_file):
-    gene_panel = list(pd.read_csv(panel_file).values.flatten())
+    panel = list(pd.read_csv(panel_file).values.flatten())
     print(f"# Processing {bam} ... ")
     coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(bam, bed), panel)
     sample = os.path.basename(bam).replace('.bam', '')
     path = os.path.dirname(bam)
     output = path + sample
     print(f"# Writing output to in {output}")
-    coverage_genes.to_csv(path + '/' + sample + '_genes.tsv', sep='\t')
-    coverage_chrom.to_csv(path + '/' + sample + '_chromosomes', sep='\t')
-    low_cov_exons.to_csv(path + '/' + sample + '_low_cov_exons', sep='\t', index=False)
+    coverage_genes.to_csv(sample + '_genes.tsv', sep='\t')
+    coverage_chrom.to_csv(sample + '_chromosomes.tsv', sep='\t')
+    low_cov_exons.to_csv(sample + '_low_cov_exons.tsv', sep='\t', index=False)
 
 
 if __name__ == "__main__":

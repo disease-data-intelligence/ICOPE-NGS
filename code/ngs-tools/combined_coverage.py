@@ -30,6 +30,7 @@ def get_parser():
                         default="/home/projects/HT2_leukngs/data/references/hg37/test.bed",
                         help="Bed-file with intervals to look at. "
                              "(Default: /home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed)")
+    parser.add_argument('-out', dest='out')
     return parser
 
 
@@ -41,6 +42,8 @@ def get_args(args=None):
 
 def run_samtools(bam, bed):
     print("# Running samtools for collecting coverage stats")
+    # Bedcov reports the total read base count (i.e. the sum of per base read depths)
+    # for each genomic region specified in the supplied BED file.
     assert os.path.exists(bam), "does not exist"
     assert os.path.exists(bed), "does not exist"
     try:
@@ -113,19 +116,23 @@ def write_excel(output, coverage_genes, coverage_chrom, low_cov_exons):
         low_cov_exons.to_excel(excel_obj, sheet_name='Low coverage exons', index=False)
 
 
-def main(infile, bed, panel_file):
+def main(infile, bed, panel_file, file_suffix=None):
     gene_panel = list(pd.read_csv(panel_file).values.flatten())
     if infile.endswith('.bam'):
         suffix = '.bam'
         coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(infile, bed), gene_panel)
-    elif infile.endswith('.cov'):
-        suffix = '.cov'
+    elif infile.endswith('.bed'):
+        suffix = '.bed'
         coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(load_data(infile), gene_panel)
     else:
         print("# File format not recognized, exiting ... ")
         exit(1)
 
-    sample = os.path.basename(infile).replace(suffix, '')
+    if file_suffix:
+        sample = os.path.basename(infile).replace(suffix, '') + '_' + file_suffix
+    else:
+        sample = os.path.basename(infile).replace(suffix, '')
+
     path = os.path.dirname(infile)
     output = path + sample
     print(f"# Writing output to in {output}")
@@ -140,7 +147,7 @@ if __name__ == "__main__":
     global_modules = globals()
     modules = imports(global_modules)
     print_modules(list(modules))
-    main(args.infile, args.bed, args.panel)
+    main(args.infile, args.bed, args.panel, args.out)
     end_time = datetime.now()
     print("# Done!")
     print('# Duration: {}'.format(end_time - start_time))

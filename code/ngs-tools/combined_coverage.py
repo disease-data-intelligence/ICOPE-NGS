@@ -31,7 +31,7 @@ def get_parser():
                         help="Bed-file with intervals to look at. "
                              "(Default: /home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed)")
     parser.add_argument('-out', dest='out')
-    parser.add_argument('-intron', '--intronmode', dest='intron', help="Only output coverage for chromosomes "
+    parser.add_argument('-intron', '--intronmode', dest='intron', action="store_true", help="Only output coverage for chromosomes "
                                                                        "for intronic regions")
     return parser
 
@@ -78,7 +78,8 @@ def calculate_coverage_stats(data, panel):
     coverage_genes = data_interest.groupby('gene').mean()
     low_coverage_exons = data_interest[data_interest['mean_cov'] < 20.0]
     print("# Number of unique genes found:", len(data['gene'].unique()))
-    print("# Found", len(data_interest), "out of", len(panel))
+    print("# Found", data_interest['gene'].nunique(), "out of", len(panel))
+    print("# Following genes were not found:", set(panel) - set(data['gene'].unique()))
     return coverage_genes.loc[:, ['mean_cov', 'exons_above20x_frac']], \
            low_coverage_exons.loc[:, ['chromosome', 'gene', 'exon', 'mean_cov']], \
            coverage_chromosomes.loc[:, ['mean_cov', 'exons_above20x_frac']]
@@ -95,7 +96,7 @@ def plot_distribution(genes, name, plots=4, sort='value'):
     fig, axes = plt.subplots(plots, 1, figsize=(10, plots*3))
     cmap = sns.color_palette("GnBu")
     for i, ax in enumerate(fig.axes):
-        sns.barplot(x='gene', ax=ax, y='mean_cov', palette=cmap, data=data[i*rows:(i+1)*rows])
+        sns.barplot(x=data[i*rows:(i+1)*rows].index, ax=ax, y='mean_cov', palette=cmap, data=data[i*rows:(i+1)*rows])
         ax.set_title('Coverage pr. target gene')
         ax.set_ylabel('Mean coverage')
         ax.set_xlabel('Gene name')
@@ -111,17 +112,16 @@ def write_excel(output, coverage_genes, coverage_chrom, low_cov_exons):
     coverage_genes.to_csv(output + '_genes.tsv', sep='\t')
     coverage_chrom.to_csv(output + '_chromosomes.tsv', sep='\t')
     low_cov_exons.to_csv(output + '_low_cov_exons.tsv', sep='\t', index=False)
-
-    with pd.ExcelWriter(output + 'xlsx') as excel_obj:
+    
+    with pd.ExcelWriter(output + '.xlsx') as excel_obj:
         print(f"# Writing xlsx file to {output}")
         coverage_genes.to_excel(excel_obj, index_label='Gene coverage', sheet_name='Gene coverage')
-        coverage_chrom.to_excel(excel_obj, index_label='Chromosome', sheet_name='Chromosome coverage in exonic regions')
+        coverage_chrom.to_excel(excel_obj, index_label='Chromosome', sheet_name='Chromosome cov. exonic regions')
         low_cov_exons.to_excel(excel_obj, sheet_name='Low coverage exons', index=False)
 
 
 def main(infile, bed, panel_file, intron_mode=False, file_suffix=None):
-    gene_panel = list(pd.read_csv(panel_file).values.flatten())
-
+    gene_panel = list(pd.read_csv(panel_file, usecols=[0]).values.flatten())
     if infile.endswith('.bam'):
         suffix = '.bam'
         coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(infile, bed), gene_panel)
@@ -144,7 +144,7 @@ def main(infile, bed, panel_file, intron_mode=False, file_suffix=None):
         coverage_chrom.to_csv(output + '_chromosomes.tsv', sep='\t')
     else:
         write_excel(output, path, sample, coverage_genes, coverage_chrom, low_cov_exons)
-    plot_distribution(coverage_genes, output)
+        plot_distribution(coverage_genes, output)
 
 
 if __name__ == "__main__":

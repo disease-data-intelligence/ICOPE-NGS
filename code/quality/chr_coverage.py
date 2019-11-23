@@ -64,7 +64,7 @@ def plot_collect_coverage(cov, input_upper_limit):
 
         for label in ax.xaxis.get_ticklabels()[::skip]:
             label.set_visible(True)
-    print("\n # Done plotting ...")
+    print("\n# Done plotting ...")
     fig.tight_layout()
     outname = filename.replace('.cov', '') + '_coverage_pr_chromosome.png'
     print("# saving coverage pr. chromosome plot to", outname)

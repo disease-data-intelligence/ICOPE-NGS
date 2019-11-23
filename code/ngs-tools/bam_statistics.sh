@@ -21,8 +21,13 @@ intronbed=/home/projects/HT2_leukngs/data/references/hg37/UCSC_introns_hg37.bed
 genepanel=/home/projects/HT2_leukngs/data/references/general/315_genes_of_interest.txt
 repair_genes=/home/projects/HT2_leukngs/data/references/general/DNA_repair_genes_core.txt
 
-samtools bedcov $bed $bam > $destination/cov.canonical.exons.bed
 echo "# Summarizing exon and gene coverage"
+start_bedcov=`date +%s`
+samtools bedcov $bed $bam > $destination/cov.canonical.exons.bed
+end_bedcov=`date +%s`
+runtime=$((end_bedcov-start_bedcov))
+echo "Finished bedov in $runtime"
+
 $apps/quality/combined_coverage.py -in $destination/cov.canonical.exons.bed -panel $genepanel -out "genes_of_interest"
 $apps/quality/combined_coverage.py -in $destination/cov.canonical.exons.bed -panel $repair_genes -out "repair_genes"
 
@@ -30,7 +35,7 @@ $apps/quality/combined_coverage.py -in $destination/cov.canonical.exons.bed -pan
 # $apps/quality/gene_coverage.py $destination/cov.canonical.exons.bed $genepanel
 
 # samtools bedcov $intronbed $bam > $destination/cov.introns.bed
-$apps/quality/combined_coverage.py -in $bam -bed $intronbed
+$apps/quality/combined_coverage.py -in $bam -bed $intronbed -intron
 
 echo "# Getting coverage pr. chromosome"
 #bedtools genomecov -ibam $bam -max 150 >  $destination/genome.cov

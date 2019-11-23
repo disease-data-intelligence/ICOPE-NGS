@@ -11,7 +11,7 @@ import os
 from io import StringIO
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from natsort import natsorted
 
 # imports from own repo's
 from utils_py.version import print_modules, imports
@@ -77,6 +77,8 @@ def calculate_coverage_stats(data, panel):
     data_interest = data[data['gene'].isin(panel)]
     coverage_genes = data_interest.groupby('gene').mean()
     low_coverage_exons = data_interest[data_interest['mean_cov'] < 20.0]
+    coverage_chromosomes = coverage_chromosomes.reindex(index=natsorted(coverage_chromosomes.index))
+    
     print("# Number of unique genes found:", len(data['gene'].unique()))
     print("# Found", data_interest['gene'].nunique(), "out of", len(panel))
     print("# Following genes were not found:", set(panel) - set(data['gene'].unique()))
@@ -136,10 +138,9 @@ def main(infile, bed, panel_file, intron_mode=False, file_suffix=None):
         sample = os.path.basename(infile).replace(suffix, '') + '_' + file_suffix
     else:
         sample = os.path.basename(infile).replace(suffix, '')
-
     path = os.path.dirname(infile)
     output = path + sample
-    print(f"# Writing output to in {output}")
+    print(f"# Writing output with prefic {output}")
     if intron_mode:
         coverage_chrom.to_csv(output + '_chromosomes.tsv', sep='\t')
     else:

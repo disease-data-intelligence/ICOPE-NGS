@@ -79,6 +79,7 @@ def calculate_coverage_stats(data, panel):
 
 
 def plot_distribution(genes, name, plots=4, sort='value'):
+    pdb.set_trace()
     if sort == 'value':
         data = genes.sort_values(by='mean_cov')
     elif sort == 'alphabet':
@@ -89,7 +90,7 @@ def plot_distribution(genes, name, plots=4, sort='value'):
     fig, axes = plt.subplots(plots, 1, figsize=(10, plots*3))
     cmap = sns.color_palette("GnBu")
     for i, ax in enumerate(fig.axes):
-        sns.barplot(x='gene', ax=ax, y='mean_cov', palette=cmap, data=data[i*rows:(i+1)*rows])
+        sns.barplot(x=data[i*rows:(i+1)*rows].index, ax=ax, y='mean_cov', palette=cmap, data=data[i*rows:(i+1)*rows])
         ax.set_title('Coverage pr. target gene')
         ax.set_ylabel('Mean coverage')
         ax.set_xlabel('Gene name')
@@ -105,11 +106,11 @@ def write_excel(output, coverage_genes, coverage_chrom, low_cov_exons):
     coverage_genes.to_csv(output + '_genes.tsv', sep='\t')
     coverage_chrom.to_csv(output + '_chromosomes.tsv', sep='\t')
     low_cov_exons.to_csv(output + '_low_cov_exons.tsv', sep='\t', index=False)
-
-    with pd.ExcelWriter(output + 'xlsx') as excel_obj:
+    
+    with pd.ExcelWriter(output + '.xlsx') as excel_obj:
         print(f"# Writing xlsx file to {output}")
         coverage_genes.to_excel(excel_obj, index_label='Gene coverage', sheet_name='Gene coverage')
-        coverage_chrom.to_excel(excel_obj, index_label='Chromosome', sheet_name='Chromosome coverage in exonic regions')
+        coverage_chrom.to_excel(excel_obj, index_label='Chromosome', sheet_name='Chromosome cov. exonic regions')
         low_cov_exons.to_excel(excel_obj, sheet_name='Low coverage exons', index=False)
 
 
@@ -118,8 +119,8 @@ def main(infile, bed, panel_file):
     if infile.endswith('.bam'):
         suffix = '.bam'
         coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(infile, bed), gene_panel)
-    elif infile.endswith('.cov'):
-        suffix = '.cov'
+    elif infile.endswith('.bed'):
+        suffix = '.bed'
         coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(load_data(infile), gene_panel)
     else:
         print("# File format not recognized, exiting ... ")
@@ -129,7 +130,7 @@ def main(infile, bed, panel_file):
     path = os.path.dirname(infile)
     output = path + sample
     print(f"# Writing output to in {output}")
-    write_excel(output, path, sample, coverage_genes, coverage_chrom, low_cov_exons)
+    write_excel(output, coverage_genes, coverage_chrom, low_cov_exons)
     plot_distribution(coverage_genes, output)
 
 

@@ -31,6 +31,8 @@ def get_parser():
                         help="Bed-file with intervals to look at. "
                              "(Default: /home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed)")
     parser.add_argument('-out', dest='out')
+    parser.add_argument('-intron', '--intronmode', dest='intron', help="Only output coverage for chromosomes "
+                                                                       "for intronic regions")
     return parser
 
 
@@ -117,7 +119,7 @@ def write_excel(output, coverage_genes, coverage_chrom, low_cov_exons):
         low_cov_exons.to_excel(excel_obj, sheet_name='Low coverage exons', index=False)
 
 
-def main(infile, bed, panel_file, file_suffix=None):
+def main(infile, bed, panel_file, intron_mode=False, file_suffix=None):
     gene_panel = list(pd.read_csv(panel_file).values.flatten())
 
     if infile.endswith('.bam'):
@@ -138,7 +140,10 @@ def main(infile, bed, panel_file, file_suffix=None):
     path = os.path.dirname(infile)
     output = path + sample
     print(f"# Writing output to in {output}")
-    write_excel(output, path, sample, coverage_genes, coverage_chrom, low_cov_exons)
+    if intron_mode:
+        coverage_chrom.to_csv(output + '_chromosomes.tsv', sep='\t')
+    else:
+        write_excel(output, path, sample, coverage_genes, coverage_chrom, low_cov_exons)
     plot_distribution(coverage_genes, output)
 
 
@@ -149,7 +154,7 @@ if __name__ == "__main__":
     global_modules = globals()
     modules = imports(global_modules)
     print_modules(list(modules))
-    main(args.infile, args.bed, args.panel, args.out)
+    main(args.infile, args.bed, args.panel, args.intron, args.out)
     end_time = datetime.now()
     print("# Done!")
     print('# Duration: {}'.format(end_time - start_time))

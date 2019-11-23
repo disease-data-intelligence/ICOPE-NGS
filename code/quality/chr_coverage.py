@@ -77,7 +77,6 @@ def main(filename, input_upper_limit):
     if filename.endswith('.bam'):
         cov = run_genome_cov(filename)
     elif filename.endswith('.cov'):
-
         cov = read_coverage_file(filename)
     mean_coverage = plot_collect_coverage(cov, input_upper_limit)
     mean_coverage.to_csv(filename.replace('cov', 'tsv'), sep='\t')

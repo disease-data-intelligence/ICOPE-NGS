@@ -76,6 +76,7 @@ def calculate_coverage_stats(data, panel):
     coverage_genes = data_interest.groupby('gene').mean()
     low_coverage_exons = data_interest[data_interest['mean_cov'] < 20.0]
     print("# Number of unique genes found:", len(data['gene'].unique()))
+    print("# Found", len(data_interest), "out of", len(panel))
     return coverage_genes.loc[:, ['mean_cov', 'exons_above20x_frac']], \
            low_coverage_exons.loc[:, ['chromosome', 'gene', 'exon', 'mean_cov']], \
            coverage_chromosomes.loc[:, ['mean_cov', 'exons_above20x_frac']]
@@ -118,6 +119,7 @@ def write_excel(output, coverage_genes, coverage_chrom, low_cov_exons):
 
 def main(infile, bed, panel_file, file_suffix=None):
     gene_panel = list(pd.read_csv(panel_file).values.flatten())
+
     if infile.endswith('.bam'):
         suffix = '.bam'
         coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(infile, bed), gene_panel)

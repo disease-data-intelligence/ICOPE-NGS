@@ -35,7 +35,6 @@ tumor_name=$(echo $(basename $tumor_path) | sed 's/.bam//g')
 normal_name=$(echo $(basename $normal_path) | sed 's/.bam//g')
 output_name=$(echo $(basename $destination))
 
-
 echo -e "# Name \t Filepath: "
 echo -e "# $tumor_name \t $tumor_path "
 echo -e "# $normal_name \t $normal_path "
@@ -44,6 +43,11 @@ echo "# Number of threads:" $nt
 echo "# Reference version: b37"
 
 mkdir -p $destination
+
+echo "Copying executed script to" $destination
+script_name=$(basename $(readlink -f $0))
+cp "$(readlink -f $0)" $destination/"$sample".$script_name
+
 
 # Update with the location of the Sentieon software package
 module load cbspythontools/1.0

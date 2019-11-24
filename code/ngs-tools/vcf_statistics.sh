@@ -43,10 +43,10 @@ bcftools stats $vcf > $destination/"$opt"vcf_summary.txt
 $apps/quality/visualize_vcf_stats.py $destination/"$opt"vcf_summary.txt
 
 # clean up
-echo "# Moving files to quality_reports dir" 
-mv *metrics* $destination
-mv *-report.pdf $destination
-mv *summary* $destination
+echo "# Moving files to <sample>.quality_reports dir"
+[ -f *metrics* ] && mv *metrics* $destination
+[ -f *-report.pdf ] && mv *-report.pdf $destination
+[ -f *summary* ] && mv *summary* $destination
 
 end=`date +%s`
 runtime=$((end-start))

@@ -46,3 +46,10 @@ runtime=$((end-start))
 
 echo "# Runtime in seconds:" $runtime
 
+qualimap rnaseq \
+-outdir qualimap \
+-a proportional \
+-bam 22339_000000.T.XXX.SX.PST02.bam \
+-p strand-specific-reverse \
+-gtf $gtf \
+--java-mem-size=8G

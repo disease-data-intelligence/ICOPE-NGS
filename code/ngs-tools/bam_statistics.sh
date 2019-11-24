@@ -39,7 +39,7 @@ $apps/quality/combined_coverage.py -in $bam -bed $intronbed -intron
 
 echo "# Getting coverage pr. chromosome"
 #bedtools genomecov -ibam $bam -max 150 >  $destination/genome.cov
-$apps/quality/chr_coverage.py  $bam 150
+$apps/quality/chr_coverage.py $bam 150
 
 end=`date +%s`
 runtime=$((end-start))

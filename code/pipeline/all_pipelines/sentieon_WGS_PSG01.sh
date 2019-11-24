@@ -68,8 +68,9 @@ workdir=$data_dir/$sample
 mkdir -p $workdir
 logfile=$workdir/run.log
 exec > $logfile 2>&1
-echo "Copying script to" $workdir 
-cp "$(readlink -f $0)" $workdir 
+echo "Copying executed script to" $workdir
+script_name=$(basename $(readlink -f $0))
+cp "$(readlink -f $0)" $workdir/"$sample".$script_name
 cd $workdir
 
 
@@ -88,12 +89,48 @@ $SENTIEON_INSTALL_DIR/bin/sentieon plot QualDistribution -o qd-report.pdf qd_met
 $SENTIEON_INSTALL_DIR/bin/sentieon plot MeanQualityByCycle -o mq-report.pdf mq_metrics.txt
 $SENTIEON_INSTALL_DIR/bin/sentieon plot InsertSizeMetricAlgo -o is-report.pdf is_metrics.txt
 
+
+# ******************************************
+# 2.b. CHECK-POINT FOR NUMBER OF READS
+# ******************************************
+stats=$(tail -n 2 aln_metrics.txt | head -n 1 | cut -f2,6)
+total_reads=$(echo $stats | cut -d ' ' -f1)
+pf_reads_aligned=$(echo $stats | cut -d ' ' -f2)
+alignment_read_threshold1=1000
+alignment_read_threshold2=1000
+
+echo $total_reads were used in alignemnt, $pf_reads_aligned paired reads were aligned ...
+if [ $total_reads -lt $alignment_read_threshold1 ]; then
+    echo "Not enough reads, exiting ... "
+    exit
+else
+    if [ $pf_reads_aligned -lt $alignment_read_threshold2 ]; then
+        echo "Not enough aligned reads, exiting ... "
+        exit
+        fi
+echo "Sufficient paired reads aligned!"
+fi
+echo "Passed test succesfully!"
+
 # ******************************************
 # 3. Remove Duplicate Reads
 # To mark duplicate reads only without removing them, remove "--rmdup" in the second command
 # ******************************************
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --algo LocusCollector --fun score_info score.txt
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt -i sorted.bam --algo Dedup --rmdup --score_info score.txt --metrics dedup_metrics.txt deduped.bam
+
+
+grep "algo: Dedup" -A 4 run.log >> read_summary.txt
+reads=$(grep "algo: Dedup" -A 4 run.log | grep 'reads' | cut -d ' ' -f2)
+deduplication_threshold=1000
+
+echo $reads reads were used in deduplication ...
+if [ $total_reads -lt $deduplication_threshold ]; then
+    echo "Not enough reads, exiting ... "
+    exit
+fi
+echo "Passed test succesfully!"
+
 
 # ******************************************
 # 4. Indel realigner
@@ -109,6 +146,7 @@ $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam  --i
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo QualCal -k $dbsnp -k $known_Mills_indels -k $known_1000G_indels recal_data.table.post
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -t $nt --algo QualCal --plot --before recal_data.table --after recal_data.table.post recal.csv
 $SENTIEON_INSTALL_DIR/bin/sentieon plot QualCal -o recal_plots.pdf recal.csv
+
 
 # ******************************************
 # 5b. ReadWriter to output recalibrated bam
@@ -137,19 +175,34 @@ $apps/computerome/submit.py "$apps/ngs-tools/bam_statistics.sh "$sample".bam" --
 $SENTIEON_INSTALL_DIR/bin/sentieon driver -r $fasta -t $nt -i realigned.bam -q recal_data.table --algo Haplotyper -d $dbsnp --emit_conf=30 --call_conf=30 output.vcf.gz
 
 
+hc_variant_threshold=-1
+nr_variants=$(zgrep -v  '#' output.vcf.gz | wc -l)
+echo $nr_variants were called with Haplotyper ...
+if [ $total_reads -lt $hc_variant_threshold ]; then
+    echo "Not enough variants (less than $hc_variant_threshold) were called!"
+    echo "Assuming an error happened, and exiting ... "
+    exit
+fi
+echo "Passed test succesfully!"
+
+
 # ******************************************
 # 7. Clean-up and VCF-stats submission  
 # The final bam-file is the recaled.bam + *bai which may be used in other
 # analysis 
 # VCF-stats are found with vcf statistics and all quality is kept in
-# quality_reports  
+# $sample.quality_reports
 # ******************************************
-# rename the final vcf-file to comply with naming scheme 
+# rename the final vcf-file to comply with naming scheme
+# also rename the run.log
 mv output.vcf.gz "$sample".vcf.gz
 mv output.vcf.gz.tbi "$sample".vcf.gz.tbi
+mv run.log "$sample".run.log
 
 $apps/ngs-tools/vcf_statistics.sh "$sample".vcf.gz
 
+# make sure quality reports is named corrrectly (this should actually have been done in {bam/vcf}_statistics)
+mv quality_reports "$sample".quality_reports
 
 # remove all the files we don't want to keep: 
 rm recal*

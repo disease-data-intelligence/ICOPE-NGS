@@ -35,7 +35,7 @@ def read_coverage_file(covfile):
     return cov
 
 
-def plot_collect_coverage(cov, input_upper_limit):
+def plot_collect_coverage(cov, outname, input_upper_limit):
     upper_limit = 50
     plots = cov['chr'].unique()
     # only plot chr 1-22, X, Y and genome
@@ -66,7 +66,7 @@ def plot_collect_coverage(cov, input_upper_limit):
             label.set_visible(True)
     print("\n# Done plotting ...")
     fig.tight_layout()
-    outname = filename.replace('.cov', '') + '_coverage_pr_chromosome.png'
+    outname = outname + '_coverage_pr_chromosome.png'
     print("# saving coverage pr. chromosome plot to", outname)
     plt.savefig(outname, format='png')
     summary_df = pd.DataFrame(summary, index=[0]).transpose().rename(columns={0: 'Coverage'})
@@ -76,13 +76,13 @@ def plot_collect_coverage(cov, input_upper_limit):
 def main(filename, input_upper_limit):
     if filename.endswith('.bam'):
         cov = run_genome_cov(filename)
-        outname = filename.replace('bam', 'tsv')
+        outname = filename.replace('.bam', '')
     elif filename.endswith('.cov'):
         cov = read_coverage_file(filename)
-        outname = filename.replace('cov', 'tsv')
-    mean_coverage = plot_collect_coverage(cov, input_upper_limit)
+        outname = filename.replace('.cov', '')
     print(f"# Saving to {outname}")
-    mean_coverage.to_csv(outname, sep='\t')
+    mean_coverage = plot_collect_coverage(cov, outname, input_upper_limit)
+    mean_coverage.to_csv(outname + '.tsv', sep='\t')
 
 
 if __name__ == '__main__':

@@ -33,19 +33,23 @@ def plot_qual(data, axes):
 
 
 def plot_dp(data, ax):
-    cols = ['[6]number of sites']
-    pretty_names = {cols[0]: 'Number of sites'}
-    # for plotting
-    for col in cols:
-        data.plot.bar(x='[3]bin', y=col, label=pretty_names[col], logy=True, color='#ff8f8f', ax=ax)
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(50))
-        ax.xaxis.set_minor_locator(ticker.MultipleLocator(2.5))
-        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
-        ax.set_xlim(0, 500+5)
-        ax.set_title("Depth distribution for " + pretty_names[col])
-        ax.set_xlabel('Depth')
-        plt.setp(ax.patches, linewidth=0)
-        plt.tight_layout()
+    if len(data) == 0:
+        # some vcf files do not have this field, data will be empty
+        return None
+    else:
+        cols = ['[6]number of sites']
+        pretty_names = {cols[0]: 'Number of sites'}
+        # for plotting
+        for col in cols:
+            data.plot.bar(x='[3]bin', y=col, label=pretty_names[col], logy=True, color='#ff8f8f', ax=ax)
+            ax.xaxis.set_major_locator(ticker.MultipleLocator(50))
+            ax.xaxis.set_minor_locator(ticker.MultipleLocator(2.5))
+            ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+            ax.set_xlim(0, 500+5)
+            ax.set_title("Depth distribution for " + pretty_names[col])
+            ax.set_xlabel('Depth')
+            plt.setp(ax.patches, linewidth=0)
+            plt.tight_layout()
 
 
 def summarize_sn(data, filename):

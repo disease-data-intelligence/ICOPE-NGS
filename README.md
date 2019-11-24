@@ -13,6 +13,6 @@ Please keep it updated with what you're doing ATM :-)
 # Pipeline information 
 Read about the updates on pipelines here: 
 - [WGS pipeline](code/pipeline/all_pipelines/WGS_release_notes.md) (PSG) 
-- [RNAseq pipeline](code/pipeline/all_pipelines/RNAseq_release_notes.md) (PST) 
+- [RNAseq pipeline](code/pipeline/all_pipelines/RNA_seq_release_notes.md) (PST) 
 - [Somatic variants (paired) pipeline](code/pipeline/all_pipelines/paired_release_notes.md) (PSP) 
 

@@ -76,10 +76,13 @@ def plot_collect_coverage(cov, input_upper_limit):
 def main(filename, input_upper_limit):
     if filename.endswith('.bam'):
         cov = run_genome_cov(filename)
+        outname = filename.replace('bam', 'tsv')
     elif filename.endswith('.cov'):
         cov = read_coverage_file(filename)
+        outname = filename.replace('cov', 'tsv')
     mean_coverage = plot_collect_coverage(cov, input_upper_limit)
-    mean_coverage.to_csv(filename.replace('cov', 'tsv'), sep='\t')
+    print(f"# Saving to {outname}")
+    mean_coverage.to_csv(outname, sep='\t')
 
 
 if __name__ == '__main__':

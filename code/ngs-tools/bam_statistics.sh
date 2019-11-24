@@ -26,7 +26,7 @@ start_bedcov=`date +%s`
 samtools bedcov $bed $bam > $destination/cov.canonical.exons.bed
 end_bedcov=`date +%s`
 runtime=$((end_bedcov-start_bedcov))
-echo "Finished bedov in $runtime"
+echo "Finished bedov in $runtime seconds"
 
 $apps/quality/combined_coverage.py -in $destination/cov.canonical.exons.bed -panel $genepanel -out "genes_of_interest"
 $apps/quality/combined_coverage.py -in $destination/cov.canonical.exons.bed -panel $repair_genes -out "repair_genes"

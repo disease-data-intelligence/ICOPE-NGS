@@ -17,10 +17,11 @@ sample=$(basename $input | sed 's/.vcf.*//')
 echo -e "Input \t Sample-name"
 echo -e "$input \t $sample"
 
-mkdir "$sample".analysis_of_relevant_genes
+mkdir -p "$sample".analysis_of_relevant_genes
 cd "$sample".analysis_of_relevant_genes
 
 # subset list of variants with our gene list (bed-file)
+module load perl/5.24.0
 module load vcftools/0.1.16
 echo "Loaded vcftools/0.1.16"
 vcftools --gzvcf ../$sample".vcf.gz" --bed $bedfile --recode
@@ -65,7 +66,7 @@ bedfile=/home/projects/HT2_leukngs/data/references/hg37/hg37_pathways.bed
 # subset list of variants with our gene list (bed-file)
 module load perl/5.24.0
 module load vcftools/0.1.16
-echo "Loaded vcftools/0.1.16"
+echo "Loaded perl/5.24.0 + vcftools/0.1.16"
 vcftools --gzvcf ../$sample".vcf.gz" --bed $bedfile --recode
 nvariants=$(grep -v ^# -c out.recode.vcf)
 echo "We get $nvariants variants in the genes of interest (all pathways ALL genes)"

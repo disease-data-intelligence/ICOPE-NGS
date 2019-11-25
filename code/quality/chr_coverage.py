@@ -41,6 +41,7 @@ def plot_collect_coverage(cov, outname, input_upper_limit):
     # only plot chr 1-22, X, Y and genome
     plots = [x for x in plots if (x[0].isdigit() or x.startswith('X') or
                                   x.startswith('Y') or x.startswith('g'))]
+    plots = [x for x in plots if (x[0].isdigit() or x[0] in ['X', 'Y', 'g', 'M'])]
     summary = dict()
     fig, axes = plt.subplots(int(np.ceil(len(plots) / 3)), 3, figsize=(30, len(plots)))
     for frag, ax in zip(plots, fig.axes):

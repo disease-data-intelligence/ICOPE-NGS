@@ -9,11 +9,29 @@ import matplotlib
 import subprocess
 import os
 from io import StringIO
+import argparse
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt 
 from utils_py.version import print_modules, imports
 from utils_py.pprinting import print_overwrite
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+        description="Run coverage stats for all")
+    parser.add_argument('-in', dest="infile", help="Coverage file from samtools or bam-file", type=str)
+    parser.add_argument('-out', dest='out', help="Name of outfile. Will be placed in current working directory if "
+                                                 "there is no path.")
+    parser.add_argument('-limit', dest='limit', help="Limit for plotting coverage. Default: 150", default=150)
+    return parser
+
+
+def get_args(args=None):
+    parser = get_parser()
+    args = parser.parse_args(args)
+    return args
+
 
 
 def run_genome_cov(bam):
@@ -73,13 +91,17 @@ def plot_collect_coverage(cov, outname, input_upper_limit):
     return summary_df
 
 
-def main(filename, input_upper_limit):
-    if filename.endswith('.bam'):
+def main(filename, input_upper_limit, outname=None):
+    split = os.path.splittext(filename)
+    if outname:
+        outname = os.path.join(os.getcwd(), outname)
+    else:
+        outname = split[0]
+
+    if split[1] == '.bam':
         cov = run_genome_cov(filename)
-        outname = filename.replace('.bam', '')
-    elif filename.endswith('.cov'):
+    elif split[1] == '.cov':
         cov = read_coverage_file(filename)
-        outname = filename.replace('.cov', '')
     print(f"# Saving to {outname}")
     mean_coverage = plot_collect_coverage(cov, outname, input_upper_limit)
     mean_coverage.to_csv(outname + '.tsv', sep='\t')
@@ -90,13 +112,9 @@ if __name__ == '__main__':
     global_modules = globals()
     modules = imports(global_modules)
     print_modules(list(modules))
-    filename = sys.argv[1]
-    try:
-        input_upper_limit = int(sys.argv[2])
-    except IndexError:
-        input_upper_limit = 150
-    print(f"# Input: {filename} \t  Upper limit: {input_upper_limit}")
-    main(filename, input_upper_limit)
+    args = get_args()
+    print(f"# Input: {args.infile} \t  Upper limit: {args.limit}")
+    main(args.infile, args.limit, args.out)
     print("# Done!")
 
 

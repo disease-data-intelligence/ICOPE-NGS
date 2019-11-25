@@ -21,6 +21,7 @@ mkdir "$sample".analysis_of_relevant_genes
 cd "$sample".analysis_of_relevant_genes
 
 # subset list of variants with our gene list (bed-file)
+
 module load vcftools/0.1.16
 echo "Loaded vcftools/0.1.16"
 vcftools --gzvcf ../$sample".vcf.gz" --bed $bedfile --recode

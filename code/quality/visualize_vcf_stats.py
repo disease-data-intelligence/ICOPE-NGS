@@ -35,6 +35,8 @@ def plot_qual(data, axes):
 def plot_dp(data, ax):
     if len(data) == 0:
         # some vcf files do not have this field, data will be empty
+        ax.set_visible(False)
+        print("# DP data was empty")
         return None
     else:
         cols = ['[6]number of sites']
@@ -66,8 +68,12 @@ def open_vcf_stats(filename, function):
     identifier = '^' + function
     input = subprocess.Popen(["grep", identifier, "-B", "1"], stdin=open(filename), stdout=subprocess.PIPE)
     decoding = StringIO(input.communicate()[0].decode('utf-8'))
-    data = pd.read_csv(decoding, sep='\t')
-    return data
+    try:
+        data = pd.read_csv(decoding, sep='\t')
+        return data
+    except pd.errors.EmptyDataError:
+       # return an empty dataframe 
+       return pd.DataFrame() 
 
 
 if __name__ == '__main__':
@@ -79,13 +85,13 @@ if __name__ == '__main__':
     modules = imports(global_modules)
     print_modules(list(modules))
     print("# Gettings stats for", filename)
-    fig, axes = plt.subplots(3, figsize=(8,15))
-    fields_fun = [summarize_sn, plot_qual, plot_dp]
-    fields_args = [filename, axes[1:], axes[0]]
     field_names = ['SN', 'QUAL', 'DP']
     data = map(lambda x: open_vcf_stats(filename,x), field_names)
-    for fun, data, args in zip(fields_fun, data, fields_args):
-        fun(data, args)
+    fig, axes = plt.subplots(3, figsize=(8,15))
+    fields_fun = [summarize_sn, plot_qual, plot_dp]
+    fields_args = [filename, axes[0:2], axes[2]]
+    for fun, df, args in zip(fields_fun, data, fields_args):
+        fun(df, args)
 
     plot_name = filename.replace('txt', 'pdf')
     plt.savefig(plot_name, dpi=150)

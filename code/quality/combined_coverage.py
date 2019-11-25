@@ -11,7 +11,7 @@ import os
 from io import StringIO
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from natsort import natsorted
 
 # imports from own repo's
 from utils_py.version import print_modules, imports
@@ -68,7 +68,7 @@ def load_data(infile):
     return data
 
 
-def calculate_coverage_stats(data, panel):
+def calculate_coverage_stats(data, panel, intron_mode=False):
     print("# Calculating coverage stats ... ")
     data['mean_cov'] = data['coverage'] / (data['end'] - data['start'])
     data['exons_above20x_frac'] = data['mean_cov'].apply(lambda x: int(x > 20.0))
@@ -77,9 +77,12 @@ def calculate_coverage_stats(data, panel):
     data_interest = data[data['gene'].isin(panel)]
     coverage_genes = data_interest.groupby('gene').mean()
     low_coverage_exons = data_interest[data_interest['mean_cov'] < 20.0]
-    print("# Number of unique genes found:", len(data['gene'].unique()))
-    print("# Found", data_interest['gene'].nunique(), "out of", len(panel))
-    print("# Following genes were not found:", set(panel) - set(data['gene'].unique()))
+    coverage_chromosomes = coverage_chromosomes.reindex(index=natsorted(coverage_chromosomes.index))
+    
+    print("# Number of unique genes/features found:", len(data['gene'].unique()))
+    print("# Found", data_interest['gene'].nunique(), "out of", len(np.unique(panel)))
+    if data_interest['gene'].nunique() < len(panel) and not intron_mode:
+        print("# Following genes were not found:", set(panel) - set(data['gene'].unique()))
     return coverage_genes.loc[:, ['mean_cov', 'exons_above20x_frac']], \
            low_coverage_exons.loc[:, ['chromosome', 'gene', 'exon', 'mean_cov']], \
            coverage_chromosomes.loc[:, ['mean_cov', 'exons_above20x_frac']]
@@ -120,30 +123,31 @@ def write_excel(output, coverage_genes, coverage_chrom, low_cov_exons):
         low_cov_exons.to_excel(excel_obj, sheet_name='Low coverage exons', index=False)
 
 
-def main(infile, bed, panel_file, intron_mode=False, file_suffix=None):
-    gene_panel = list(pd.read_csv(panel_file, usecols=[0]).values.flatten())
+def main(infile, bed, panel_file, intron_mode=False, outname=None):
+    # pdb.set_trace()
+    gene_panel = list(np.unique(pd.read_csv(panel_file, usecols=[0]).values.flatten()))
     if infile.endswith('.bam'):
         suffix = '.bam'
-        coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(infile, bed), gene_panel)
+        coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(run_samtools(infile, bed), gene_panel, intron_mode)
     elif infile.endswith('.bed'):
         suffix = '.bed'
-        coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(load_data(infile), gene_panel)
+        coverage_genes, low_cov_exons, coverage_chrom = calculate_coverage_stats(load_data(infile), gene_panel, intron_mode)
     else:
         print("# File format not recognized, exiting ... ")
         exit(1)
 
-    if file_suffix:
-        sample = os.path.basename(infile).replace(suffix, '') + '_' + file_suffix
+    if outname:
+        sample = outname
+        output = os.path.join(os.getcwd(), sample)
     else:
         sample = os.path.basename(infile).replace(suffix, '')
-
-    path = os.path.dirname(infile)
-    output = path + sample
-    print(f"# Writing output to in {output}")
+        path = os.path.dirname(infile)
+        output = os.path.join(path, sample)
+    print(f"# Writing output with prefix {output}")
     if intron_mode:
         coverage_chrom.to_csv(output + '_chromosomes.tsv', sep='\t')
     else:
-        write_excel(output, path, sample, coverage_genes, coverage_chrom, low_cov_exons)
+        write_excel(output, coverage_genes, coverage_chrom, low_cov_exons)
         plot_distribution(coverage_genes, output)
 
 

@@ -52,8 +52,9 @@ SENTIEON_INSTALL_DIR=/services/tools/cbspythontools/1.0
 export SENTIEON_LICENSE=localhost:8990
 
 # RNA specific resources
+module load gcc/8.2.0
 module load star/2.7.2b
-echo "Loaded star version 2.7.2b"
+echo "Loaded gcc/8.2.0 and star version 2.7.2b"
 gtf=/home/projects/HT2_leukngs/data/references/hg37/Homo_sapiens.GRCh37.75_filtered.gtf
 genomeDir=/home/projects/HT2_leukngs/data/references/hg37/star_genome_2.7.2b
 
@@ -298,8 +299,11 @@ mv run.log "$sample".run.log
 
 $apps/ngs-tools/vcf_statistics.sh "$sample".vcf.gz
 
+# following is just in case quality reports is not named correctly in {vcf/bam}_statistics 
 mv quality_reports "$sample".quality_reports
 
+mv *pdf "$sample".quality_reports
+mv *txt "$sample".quality_reports
 # remove all the files we don't want to keep:
 rm recal* 
 rm splitted.bam*

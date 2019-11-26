@@ -93,7 +93,7 @@ def plot_collect_coverage(cov, outname, input_upper_limit):
 
 
 def main(filename, input_upper_limit, outname=None):
-    split = os.path.splittext(filename)
+    split = os.path.splitext(filename)
     if outname:
         outname = os.path.join(os.getcwd(), outname)
     else:

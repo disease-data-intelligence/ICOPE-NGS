@@ -51,17 +51,20 @@ def find_pairs(samples, germline_pipeline, tumor_pipeline, paired_pipeline):
     for s in samples:
         print("# Finding files for sample", s)
         tumor, germline, dest = (None, None, None)
-        for walk_idx, (r, d, f) in enumerate(os.walk(s, topdown=True)):
+        for walk_idx, (root, d, f) in enumerate(os.walk(s, topdown=True)):
             if walk_idx == 0:
                 assert len(d) == 2, "You are not submitting from right destination or sample is not paired"
-            if r.endswith('.'+germline_pipeline):
-                germline_name = r.split('/')[-1]
-                germline = r + '/' + [x for x in f if (x.endswith('.bam') and x.startswith(germline_name))][0]
+            if root.endswith('.'+germline_pipeline):
+                germline_name = root.split('/')[-1]
+                germline = root + '/' + [x for x in f if (x.endswith('.bam') and x.startswith(germline_name))][0]
                 print("# Found germline file",  germline)
-            if r.endswith('.'+tumor_pipeline):
-                tumor_name = r.split('/')[-1]
-                tumor = r + '/' + [x for x in f if (x.endswith('.bam') and x.startswith(tumor_name))][0]
-                tumor_path = '/'.join(r.split('/')[:-1])
+            if root.endswith('.'+tumor_pipeline):
+                tumor_name = root.split('/')[-1]
+                try:
+                    tumor = root + '/' + [x for x in f if (x.endswith('.bam') and x.startswith(tumor_name))][0]
+                except IndexError:
+                    print("# bam-file missing from tumor folder")
+                tumor_path = '/'.join(root.split('/')[:-1])
                 print("# Found tumor file", tumor)
         if sum(map(lambda x: isinstance(x, str), (tumor, germline))) == 2:
             mrd = tumor_name.split('_')[0]

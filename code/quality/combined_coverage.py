@@ -27,7 +27,7 @@ def get_parser():
                         default='/home/projects/HT2_leukngs/data/references/general/315_genes_of_interest.txt',
                         help="(Default: /home/projects/HT2_leukngs/data/references/general/315_genes_of_interest.txt)")
     parser.add_argument('-bed', '--bedfile', type=str, dest='bed',
-                        default="/home/projects/HT2_leukngs/data/references/hg37/test.bed",
+                        default="/home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed",
                         help="Bed-file with intervals to look at. "
                              "(Default: /home/projects/HT2_leukngs/data/references/hg37/USCS.hg37.canonical.exons.bed)")
     parser.add_argument('-out', dest='out')

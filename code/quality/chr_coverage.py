@@ -98,7 +98,6 @@ def main(filename, input_upper_limit, outname=None):
         outname = os.path.join(os.getcwd(), outname)
     else:
         outname = split[0]
-
     if split[1] == '.bam':
         cov = run_genome_cov(filename)
     elif split[1] == '.cov':

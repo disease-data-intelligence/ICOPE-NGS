@@ -401,7 +401,7 @@ a fraction of the mutant allele out of all aligned bases in this position and th
 
 
 
-## PART 4. Interpretation of the resulting somatic mutations ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
+## PART 4. Interpretation of the resulting somatic mutations  
 
 A list of chromosome coordinates is kind of hard to interpret. Here are some ways to approach the results.  
 
@@ -444,7 +444,7 @@ Search for your COSMIC identifier in the
     * Do SIFT and PolyPhen agree? 
 
 
-#### 4.2 - cBioPortal 
+#### 4.2 - cBioPortal  ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 
 Go to [cBioPortal](http://www.cbioportal.org), a website that provides tools to analyze
 several large cancer sequencing datasets. In Quick Select, choose "TCGA PanCancer Atlas studies".

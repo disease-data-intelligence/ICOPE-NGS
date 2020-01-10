@@ -87,7 +87,7 @@ should you work with cancer patient sequencing data.
 The parts where you should actually run the code include: 1.1, 1.2, 3, and 4
 
 
-### PART 1. Raw reads: inspection, QC, cleanup
+## PART 1. Raw reads: inspection, QC, cleanup
 
  
 
@@ -167,7 +167,7 @@ Set up new variables for the newly created files.
         f2t_val=$outdir/trimmed_tumor/TCRBOA2-T-WEX.read2_trimmed.fq.gz_pairs_R2.fastq.gz
 
 
-### PART 2. Alignment and additional preprocessing (DO NOT RUN)
+## PART 2. Alignment and additional preprocessing (DO NOT RUN)
 
 #### 2.1 - Alignment (DO NOT RUN) 
 _~4.5 hours with 4 processors, ~37 minutes with 14 processors_
@@ -288,7 +288,7 @@ _~34 and ~32 min per file_
 Now, the resulting BAM files are ready to be processed with MuTect2.
 
 
-### PART 3. Somatic mutation calling (BAM file -> VCF file)
+## PART 3. Somatic mutation calling (BAM file -> VCF file)
  
 
 #### 3.1 - MuTect2
@@ -378,7 +378,7 @@ To add some extra information to the vcf-file, we will also annotate with SNP-id
  
 Now try to filter mutational calls by selecting those with Mutect "PASS" annotation.
 
-        grep PASS TCRBOA2_${CHR_LOC}_filtered.vcf | grep -v "^#"  
+        grep PASS TCRBOA2_${CHR_LOC}_filtered_anno.vcf | grep -v "^#"  
 
 You should at least see this line (without the header). Don't forget you can scroll to the sides! 
 
@@ -398,7 +398,7 @@ a fraction of the mutant allele out of all aligned bases in this position and th
 
 
 
-### PART 4. Interpretation of the resulting somatic mutations
+## PART 4. Interpretation of the resulting somatic mutations
 
 A list of chromosome coordinates is kind of hard to interpret. Here are some ways to approach the results.  
 

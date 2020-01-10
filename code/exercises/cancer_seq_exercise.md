@@ -2,6 +2,7 @@
 Cancer-related exercises for the [DTU course 22126](http://teaching.healthtech.dtu.dk/22126/index.php/Program_2020) 
 
 *Adapted from original exercise by Marcin Krzystanek and Aron Eklund.* 
+* _Changes include: Some more tools, GATK calls updated to match vs. 4, new resources, comments and questions_    
 
 These exercises will guide you through all steps starting from raw data (FASTQ files)
 and resulting in a list of somatic point mutations. 
@@ -21,7 +22,7 @@ These exercises are tested with:
 * fastqCombinePairedEnd.py (by [Eric Normandeau](https://github.com/enormandeau/Scripts/blob/master/fastqCombinePairedEnd.py))
 
 
-https://samtools.github.io/hts-specs/VCFv4.1.pdf
+
 
 
 ## Resources
@@ -84,14 +85,14 @@ However, for reference, we provide the code needed for the full analysis.
 Thus, you can use this code later in the course project or in your own work, 
 should you work with cancer patient sequencing data.
 
-The parts where you should actually run the code include: 1.1, 1.2, 3, and 4
+The parts where you should actually run the code are marked with a green square: ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 
 
 ## PART 1. Raw reads: inspection, QC, cleanup
 
  
 
-#### 1.1 - Start up 
+#### 1.1 - Start up ![#c5f015](https://placehold.it/15/c5f015/000000?text=+)  
 First, let's define bash variables for keeping our workspace clean.  
 
         # Input files  
@@ -105,6 +106,7 @@ First, let's define bash variables for keeping our workspace clean.
         mills=/home/27626/exercises/cancer_seq/resources/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
         dbsnp=/home/27626/exercises/cancer_seq/resources/Homo_sapiens_assembly38.dbsnp138.vcf        
         cosmic=/home/27626/exercises/cancer_seq/resources/CosmicCodingMuts_chr_sorted.vcf
+        gnomad=home/27626/exercises/cancer_seq/resources/af-only-gnomad.hg38.vcf.gz
         
         # Tools 
         PICARD=/home/27626/bin/picard.jar
@@ -119,7 +121,7 @@ Make a folder for the exercise:
         
 
 
-#### 1.2 - Take a first look at the data
+#### 1.2 - Take a first look at the data ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 Look at the data available. You do not need to copy it to your own folder because the files are quite large. 
 
         ls -l /home/27626/exercises/cancer_seq
@@ -291,7 +293,7 @@ Now, the resulting BAM files are ready to be processed with MuTect2.
 ## PART 3. Somatic mutation calling (BAM file -> VCF file)
  
 
-#### 3.1 - MuTect2
+#### 3.1 - MuTect2 ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 _All chromosomes took ~327 minutes, (~5.4 hours with four threads)_
 
 We are going to use "soft-links" to the input bam-files. This a way to avoid working with long paths and is an alternative to defining bash-variables. 
@@ -307,7 +309,8 @@ Use `ls -l` to see how they appear in your directory.
 
 
 We use [MuTect2][MuTect2], a somatic mutation caller that identifies both SNV and indels. 
-The produced VCF-file (variant calling format) is the standard format for storing variants, although the output of Mutect2 has some information specific for somatic variants.   
+The produced VCF-file (variant calling format) is the standard format for storing variants, although the output of Mutect2 has some information specific for somatic variants. See here for specs: https://samtools.github.io/hts-specs/VCFv4.1.pdf
+   
 A big difference in cancer-seq variant calling using Mutect2 is that there are no ploidy assumptions. 
 This accommodates tumor data which can have many copy number variants (CNVs).   
 
@@ -345,7 +348,7 @@ Take a look at the resulting VCF file with `less -RS TCRBOA2_${CHR_LOC}.vcf` The
 * How many variants did you find?   
 
 
-#### 3.2 Compare with calling all variants 
+#### 3.2 Compare with calling all variants ![#c5f015](https://placehold.it/15/c5f015/000000?text=+)  
 Just for comparison, we try to call all variants in the interval for the germline and the tumor sample.
 
         gatk HaplotypeCaller -I TCRBOA2-T-WEX_recaled.bam -R $hg38 -L ${CHR_LOC} -O TCRBOA2-T.vcf --dbsnp $dbsnp 
@@ -359,7 +362,7 @@ Count the variant lines in each with the same command as above:
 
 * Where do you find the most raw variants and does that make biological sense? What is the difference in the two numbers and does it match above?  
 
-#### 3.3 - Filter the VCF output
+#### 3.3 - Filter the VCF output ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 Before continuing, we need to filter the raw vcf-output to only get confident variants:  
  
        gatk FilterMutectCalls \
@@ -398,11 +401,11 @@ a fraction of the mutant allele out of all aligned bases in this position and th
 
 
 
-## PART 4. Interpretation of the resulting somatic mutations
+## PART 4. Interpretation of the resulting somatic mutations ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 
 A list of chromosome coordinates is kind of hard to interpret. Here are some ways to approach the results.  
 
-#### 4.1 - Variant annotation with dbSNP, Variant effect predictor and COSMIC 
+#### 4.1 - Variant annotation with dbSNP, Variant effect predictor and COSMIC  ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 
 
 * Find the RS identifier from the cancer mutation and look it up at [dbSNP](https://www.ncbi.nlm.nih.gov/snp). 
@@ -452,7 +455,7 @@ Look at the barcharts and play around with the options.
 
 
 
-#### 4.3 - Inference of tissue of origin
+#### 4.3 - Inference of tissue of origin ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
 
 Next we'll do some analysis on a VCF file containing somatic mutations found throughout
 the entire genome:

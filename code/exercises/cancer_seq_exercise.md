@@ -43,7 +43,7 @@ In this exercise, the used resources are based on UCSC naming conventions: chrom
 * Mills and 1000G genomes Gold Standard indels (known indels)
 * gnomAD for allelic frequencies   
 
-All resources are in * . The genome has been bwa-indexed. Consider taking a look at the hg38.fa file. You can look at the header encoding with 
+All resources are in '/home/27626/exercises/cancer_seq/resources'. The genome has been bwa-indexed. Consider taking a look at the hg38.fa file. You can look at the header encoding with 
 
         grep '^>' hg38.fa | head -15    # show first 15   
 
@@ -106,7 +106,7 @@ First, let's define bash variables for keeping our workspace clean.
         mills=/home/27626/exercises/cancer_seq/resources/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
         dbsnp=/home/27626/exercises/cancer_seq/resources/Homo_sapiens_assembly38.dbsnp138.vcf        
         cosmic=/home/27626/exercises/cancer_seq/resources/CosmicCodingMuts_chr_sorted.vcf
-        gnomad=home/27626/exercises/cancer_seq/resources/af-only-gnomad.hg38.vcf.gz
+        gnomad=/home/27626/exercises/cancer_seq/resources/af-only-gnomad.hg38.vcf.gz
         
         # Tools 
         PICARD=/home/27626/bin/picard.jar

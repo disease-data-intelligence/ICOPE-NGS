@@ -426,7 +426,7 @@ Hint: your results will be more interesting if you pick chromosome
 
 Filter the VCF to retain only the lines marked as "PASS".  
 
-        grep "PASS" /home/27626/exercises/cancer/chr7.vcf > filtered.chr7.vcf
+        grep "PASS" /home/27626/exercises/cancer_seq/variant_calling/split_by_chromosome/chr7.vcf > filtered.chr7.vcf
 
 * Download the *filtered* VCF to your own computer using `scp ngsstudXXX@10.44.152.8:/path/to/file . ` and submit it to the 
 [VEP website](http://www.ensembl.org/Tools/VEP) using default settings. 
